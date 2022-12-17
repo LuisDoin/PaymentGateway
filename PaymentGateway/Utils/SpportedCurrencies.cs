@@ -11,7 +11,6 @@
         CAD,
         CHF,
         HKD,
-        SGD,
-        BLR
+        SGD
     }
 }

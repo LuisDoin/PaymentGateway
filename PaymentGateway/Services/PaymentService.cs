@@ -12,23 +12,29 @@ namespace PaymentGateway.Services
         {
             if (paymentDetails == null) throw new ArgumentException("PurchaseDetails cannot be null.");
 
-            if (!isValidCreditCard(paymentDetails.CreditCardNumber)) throw new ArgumentException("Invalid credit card number.");
-
             if (!IsValidEmail(paymentDetails.Email)) throw new ArgumentException("Invalid email adress.");
 
-            if (!Enum.IsDefined(typeof(SupportedCurrencies), paymentDetails.Currency)) throw new ArgumentException("Invalid currency.");
+            if (!isValidCreditCard(paymentDetails.CreditCardNumber)) throw new ArgumentException("Invalid credit card number.");
 
-            if (!Regex.IsMatch(paymentDetails.ExpirationDate, "\\d\\d/\\d\\d")) throw new ArgumentException("Invalid expiration date.");
+            if (!isValidExpirationDate(paymentDetails.ExpirationDate)) throw new ArgumentException("Invalid expiration date.");
 
-            if (!Regex.IsMatch(paymentDetails.Cvv, "^[0-9]{3, 4}$")) throw new ArgumentException("Invalid cvv");
+            if (!Regex.IsMatch(paymentDetails.Cvv, "^[0-9]{3,4}$")) throw new ArgumentException("Invalid cvv");
+
+            if (!Enum.IsDefined(typeof(SupportedCurrencies), paymentDetails.Currency)) throw new ArgumentException("Invalid or unsupported currency.");
 
             if (paymentDetails.Amount < 0) throw new ArgumentException("Invalid amount.");
         }
 
         private bool isValidCreditCard(string cardNumber)
         {
-            return (sumOfDoubleEvenPlace(cardNumber) + sumOfOddPlace(cardNumber)) % 10 == 0;
+            if (string.IsNullOrWhiteSpace(cardNumber))
+                return false;
 
+            var isValidLength = cardNumber.Length >= 8 && cardNumber.Length <= 19;
+            var sum = sumOfDoubleEvenPlace(cardNumber) + sumOfOddPlace(cardNumber);
+            var isValidSum = sum > 0 && sum % 10 == 0;
+            
+            return isValidLength && isValidSum;
         }
 
         // Get the result from Step 2
@@ -93,6 +99,22 @@ namespace PaymentGateway.Services
             {
                 return false;
             }
+        }
+
+        private bool isValidExpirationDate(string expirationDate)
+        {
+            if (string.IsNullOrWhiteSpace(expirationDate))
+                return false;
+
+            var dateParts = expirationDate.Split('/');
+
+            if (dateParts.Length != 2)
+                return false;
+
+            var month = dateParts[0]; 
+            var year = dateParts[1];
+
+            return Regex.IsMatch(month, @"^(0[1-9]|1[0-2])$") && Regex.IsMatch(year, @"^20[2-9][0-9]$"); 
         }
     }
 }
