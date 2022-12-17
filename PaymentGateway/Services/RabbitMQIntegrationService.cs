@@ -1,7 +1,7 @@
 ﻿using RabbitMQ.Client;
 using System.Text;
 
-namespace PaymentGateway.Services.Interfaces
+namespace PaymentGateway.Services
 {
     public class RabbitMQIntegrationService : RabbitMQIntegrationBase
     {
@@ -15,6 +15,9 @@ namespace PaymentGateway.Services.Interfaces
 
         public override void Publish(string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+                throw new Exception("Message ill formed by the system");
+
             var body = Encoding.UTF8.GetBytes(message);
             _pendingTransactionsChannel.BasicPublish("", "pending_transactions", null, body);
         }
