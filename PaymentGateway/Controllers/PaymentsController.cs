@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PaymentGateway.Models;
 using PaymentGateway.Services.Interfaces;
 
@@ -10,13 +11,14 @@ namespace PaymentGateway.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentService _paymentService;
+        private readonly IQueueIntegrationService _queueIntegrationService;    
         private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IPaymentService purchaseService,
-                                      ILogger<PaymentsController> logger)
+        public PaymentsController(IPaymentService purchaseService, ILogger<PaymentsController> logger, IQueueIntegrationService queueIntegrationService)
         {
             _paymentService = purchaseService;
             _logger = logger;
+            _queueIntegrationService = queueIntegrationService;
         }
 
         /// <summary>
@@ -24,11 +26,11 @@ namespace PaymentGateway.Controllers
         /// </summary>
         /// <returns> </returns>
         /// <remarks>
-        /// Input Info: expirationDate must be in the format: mm/yyyy. List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD.
+        /// Input Info: expirationDate must be in the format: mm/yyyy. List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD. Valid credit card and cvv for testing: 4324781866717289 and 000.
         /// </remarks>
         /// <response code="200"></response>
         [HttpPost("payment")]
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
+        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
         public IActionResult Payment([FromBody] PaymentDetails paymentDetails)
         {
             try
@@ -39,7 +41,7 @@ namespace PaymentGateway.Controllers
 
                 _paymentService.validatePayment(paymentDetails);
 
-                //TODO: chamar serviço que põe na fila.
+                _queueIntegrationService.Publish(JsonConvert.SerializeObject(paymentDetails));
 
                 return Ok();
             }

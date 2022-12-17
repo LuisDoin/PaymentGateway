@@ -1,9 +1,24 @@
 using Microsoft.OpenApi.Models;
+using PaymentGateway.Services;
+using PaymentGateway.Services.Interfaces;
+using RabbitMQ.Client;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddSingleton<IPaymentService, PaymentService>();
+builder.Services.AddSingleton<IQueueIntegrationService, RabbitMQIntegrationService>();
+builder.Services.AddSingleton<IConnection>(sp =>
+        {
+            var factory = new ConnectionFactory()
+            {
+                Uri = new Uri("amqp://guest:guest@localhost:5672"),
+                AutomaticRecoveryEnabled = true
+            };
+
+            return factory.CreateConnection();
+        });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
