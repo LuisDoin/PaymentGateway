@@ -14,11 +14,11 @@ namespace PaymentGateway.Controllers
         private readonly IQueueIntegrationService _queueIntegrationService;    
         private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IPaymentService purchaseService, ILogger<PaymentsController> logger, IQueueIntegrationService queueIntegrationService)
+        public PaymentsController(IPaymentService paymentService, IQueueIntegrationService queueIntegrationService, ILogger<PaymentsController> logger)
         {
-            _paymentService = purchaseService;
-            _logger = logger;
+            _paymentService = paymentService;
             _queueIntegrationService = queueIntegrationService;
+            _logger = logger;
         }
 
         /// <summary>
