@@ -26,7 +26,7 @@ namespace PaymentGateway.Services
 
             var body = Encoding.UTF8.GetBytes(message);
             _pendingTransactionsChannel.BasicPublish("", "pending_transactions", null, body);
-            _logger.LogInformation("Published message: " + message );
+            _logger.LogInformation("Published message to pending_transactions: " + message );
         }
     }
 }

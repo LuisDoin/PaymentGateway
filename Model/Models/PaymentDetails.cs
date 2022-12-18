@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System;
 
-namespace PaymentGateway.Models
+namespace Model
 {
     public class PaymentDetails
     {
@@ -15,7 +15,6 @@ namespace PaymentGateway.Models
             Amount = amount;
         }
 
-        [JsonIgnore]
         public Guid PaymentId { get; set; }
         public string Email { get; set; }
         public string CreditCardNumber { get; set; }

@@ -1,11 +1,12 @@
 ﻿using AutoFixture;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Model;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PaymentGateway.Controllers;
-using PaymentGateway.Models;
 using PaymentGateway.Services.Interfaces;
 
 namespace PaymentGateway.UnitTests.Controllers
@@ -14,8 +15,8 @@ namespace PaymentGateway.UnitTests.Controllers
     class PaymentsControllerTests
     {
         private Mock<IPaymentService> _paymentServiceMock;
-        private Mock<IQueueProducer> _queueProducerMock;
         private Mock<ILogger<PaymentsController>> _loggerMock;
+        private Mock<IPublishEndpoint> _publishEndpointMock;
         private PaymentsController _paymentsController;
         private Fixture _fixture;
         private PaymentDetails _paymentDetails;
@@ -25,9 +26,9 @@ namespace PaymentGateway.UnitTests.Controllers
         public void SetUp()
         {
             _paymentServiceMock = new Mock<IPaymentService>();
-            _queueProducerMock = new Mock<IQueueProducer>();
             _loggerMock = new Mock<ILogger<PaymentsController>>();
-            _paymentsController = new PaymentsController(_paymentServiceMock.Object, _queueProducerMock.Object, _loggerMock.Object);
+            _publishEndpointMock = new Mock<IPublishEndpoint>();
+            _paymentsController = new PaymentsController(_paymentServiceMock.Object, _publishEndpointMock.Object, _loggerMock.Object);
             _fixture = new Fixture();
             _paymentDetails = new PaymentDetails(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
         }
@@ -37,7 +38,7 @@ namespace PaymentGateway.UnitTests.Controllers
         {
             _paymentServiceMock.Setup(x => x.validatePayment(It.IsAny<PaymentDetails>())).Throws<ArgumentException>();
 
-            var result = _paymentsController.Payment(_paymentDetails);
+            var result = _paymentsController.Payment(_paymentDetails).Result;
             var badRequestResult = result as BadRequestObjectResult;
 
             Assert.IsNotNull(badRequestResult);
@@ -47,11 +48,11 @@ namespace PaymentGateway.UnitTests.Controllers
         [Test]
         public void Payment_ValidationPass_CallsValidationAndPublishMethods()
         {
-            var result = _paymentsController.Payment(_paymentDetails);
+            var result = _paymentsController.Payment(_paymentDetails).Result;
             var okResult = result as OkObjectResult;
 
             _paymentServiceMock.Verify(x => x.validatePayment(_paymentDetails), Times.Once);
-            _queueProducerMock.Verify(x => x.Publish(JsonConvert.SerializeObject(_paymentDetails)), Times.Once);
+            _publishEndpointMock.Verify(x => x.Publish(_paymentDetails, default), Times.Once);
 
             Assert.IsNotNull(okResult);
             Assert.That(okResult.StatusCode, Is.EqualTo(200));

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using PaymentGateway.Models;
+using Model;
 using PaymentGateway.Services.Interfaces;
 
 namespace PaymentGateway.Controllers
@@ -11,13 +11,13 @@ namespace PaymentGateway.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentService _paymentService;
-        private readonly IQueueProducer _queueProducer;    
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IPaymentService paymentService, IQueueProducer queueProducer, ILogger<PaymentsController> logger)
+        public PaymentsController(IPaymentService paymentService, IPublishEndpoint publishEndpoint, ILogger<PaymentsController> logger)
         {
             _paymentService = paymentService;
-            _queueProducer = queueProducer;
+            _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
 
@@ -31,7 +31,7 @@ namespace PaymentGateway.Controllers
         /// <response code="200"></response>
         [HttpPost("payment")]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
-        public IActionResult Payment([FromBody] PaymentDetails paymentDetails)
+        public async Task<IActionResult> Payment([FromBody] PaymentDetails paymentDetails)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace PaymentGateway.Controllers
 
                 _paymentService.validatePayment(paymentDetails);
 
-                _queueProducer.Publish(JsonConvert.SerializeObject(paymentDetails));
+                await _publishEndpoint.Publish<PaymentDetails>(paymentDetails);
 
                 return Ok(paymentDetails.PaymentId);
             }

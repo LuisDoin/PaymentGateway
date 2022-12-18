@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using PaymentGateway.Models;
+﻿using Model;
+using NUnit.Framework;
 using PaymentGateway.Services;
 
 namespace PaymentGateway.UnitTests.Services

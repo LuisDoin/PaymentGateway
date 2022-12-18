@@ -1,4 +1,4 @@
-﻿using PaymentGateway.Models;
+﻿using Model;
 using PaymentGateway.Services.Interfaces;
 using PaymentGateway.Utils;
 using System.Globalization;
