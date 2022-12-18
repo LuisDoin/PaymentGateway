@@ -6,9 +6,9 @@ using RabbitMQ.Client;
 namespace PaymentGateway.UnitTests.Services
 {
     [TestFixture]
-    class RabbitMQIntegrationServiceTests
+    class RabbitMQProducerTests
     {
-        private RabbitMQIntegrationService _rabbitMQIntegrationService;
+        private RabbitMQProducer _rabbitMQProducer;
         private Mock<IConnection> _connectionMock;
 
         [SetUp]
@@ -16,7 +16,7 @@ namespace PaymentGateway.UnitTests.Services
         {
             _connectionMock = new Mock<IConnection>();
             _connectionMock.Setup(c => c.CreateModel()).Returns(new Mock<IModel>().Object);
-            _rabbitMQIntegrationService = new RabbitMQIntegrationService(_connectionMock.Object);
+            _rabbitMQProducer = new RabbitMQProducer(_connectionMock.Object);
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace PaymentGateway.UnitTests.Services
         [TestCase(null)]
         public void Publish_NullOrEmptyMessage_ThrowsException(string message)
         {
-            Assert.Throws<Exception>(() => _rabbitMQIntegrationService.Publish(message));
+            Assert.Throws<Exception>(() => _rabbitMQProducer.Publish(message));
         }
     }
 }

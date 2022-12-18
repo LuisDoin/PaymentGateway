@@ -11,13 +11,13 @@ namespace PaymentGateway.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentService _paymentService;
-        private readonly IQueueIntegrationService _queueIntegrationService;    
+        private readonly IQueueProducer _queueProducer;    
         private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IPaymentService paymentService, IQueueIntegrationService queueIntegrationService, ILogger<PaymentsController> logger)
+        public PaymentsController(IPaymentService paymentService, IQueueProducer queueProducer, ILogger<PaymentsController> logger)
         {
             _paymentService = paymentService;
-            _queueIntegrationService = queueIntegrationService;
+            _queueProducer = queueProducer;
             _logger = logger;
         }
 
@@ -41,9 +41,9 @@ namespace PaymentGateway.Controllers
 
                 _paymentService.validatePayment(paymentDetails);
 
-                _queueIntegrationService.Publish(JsonConvert.SerializeObject(paymentDetails));
+                _queueProducer.Publish(JsonConvert.SerializeObject(paymentDetails));
 
-                return Ok();
+                return Ok(paymentDetails.PaymentId);
             }
             catch (ArgumentException ex)
             {
@@ -53,7 +53,7 @@ namespace PaymentGateway.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("Payment " + paymentDetails.PaymentId + " returned an error. Error message: " + ex.Message + " StackTrace: " + ex.StackTrace);
-                return StatusCode(500);
+                return StatusCode(500, ex.Message);
             }
         }
     }

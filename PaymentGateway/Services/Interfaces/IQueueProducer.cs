@@ -1,6 +1,6 @@
 ﻿namespace PaymentGateway.Services.Interfaces
 {
-    public interface IQueueIntegrationService
+    public interface IQueueProducer
     {
         public void Publish(string message);
     }

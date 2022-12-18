@@ -12,15 +12,15 @@ namespace PaymentGateway.Services
         {
             if (paymentDetails == null) throw new ArgumentException("PurchaseDetails cannot be null.");
 
-            if (!IsValidEmail(paymentDetails.Email)) throw new ArgumentException("Invalid email adress.");
+            if (!IsValidEmail(paymentDetails.Email.Trim())) throw new ArgumentException("Invalid email adress.");
 
-            if (!isValidCreditCard(paymentDetails.CreditCardNumber)) throw new ArgumentException("Invalid credit card number.");
+            if (!isValidCreditCard(paymentDetails.CreditCardNumber.Trim())) throw new ArgumentException("Invalid credit card number.");
 
-            if (!isValidExpirationDate(paymentDetails.ExpirationDate)) throw new ArgumentException("Invalid expiration date.");
+            if (!isValidExpirationDate(paymentDetails.ExpirationDate.Trim())) throw new ArgumentException("Invalid expiration date.");
 
-            if (!Regex.IsMatch(paymentDetails.Cvv, "^[0-9]{3,4}$")) throw new ArgumentException("Invalid cvv");
+            if (!Regex.IsMatch(paymentDetails.Cvv.Trim(), "^[0-9]{3,4}$")) throw new ArgumentException("Invalid cvv");
 
-            if (!Enum.IsDefined(typeof(SupportedCurrencies), paymentDetails.Currency)) throw new ArgumentException("Invalid or unsupported currency.");
+            if (!Enum.IsDefined(typeof(SupportedCurrencies), paymentDetails.Currency.Trim())) throw new ArgumentException("Invalid or unsupported currency.");
 
             if (paymentDetails.Amount < 0) throw new ArgumentException("Invalid amount.");
         }

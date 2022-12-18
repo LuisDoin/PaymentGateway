@@ -7,11 +7,6 @@ using NUnit.Framework;
 using PaymentGateway.Controllers;
 using PaymentGateway.Models;
 using PaymentGateway.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentGateway.UnitTests.Controllers
 {
@@ -19,7 +14,7 @@ namespace PaymentGateway.UnitTests.Controllers
     class PaymentsControllerTests
     {
         private Mock<IPaymentService> _paymentServiceMock;
-        private Mock<IQueueIntegrationService> _queueIntegrationServiceMock;
+        private Mock<IQueueProducer> _queueProducerMock;
         private Mock<ILogger<PaymentsController>> _loggerMock;
         private PaymentsController _paymentsController;
         private Fixture _fixture;
@@ -30,9 +25,9 @@ namespace PaymentGateway.UnitTests.Controllers
         public void SetUp()
         {
             _paymentServiceMock = new Mock<IPaymentService>();
-            _queueIntegrationServiceMock = new Mock<IQueueIntegrationService>();
+            _queueProducerMock = new Mock<IQueueProducer>();
             _loggerMock = new Mock<ILogger<PaymentsController>>();
-            _paymentsController = new PaymentsController(_paymentServiceMock.Object, _queueIntegrationServiceMock.Object, _loggerMock.Object);
+            _paymentsController = new PaymentsController(_paymentServiceMock.Object, _queueProducerMock.Object, _loggerMock.Object);
             _fixture = new Fixture();
             _paymentDetails = new PaymentDetails(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
         }
@@ -52,10 +47,15 @@ namespace PaymentGateway.UnitTests.Controllers
         [Test]
         public void Payment_ValidationPass_CallsValidationAndPublishMethods()
         {
-            _paymentsController.Payment(_paymentDetails);
+            var result = _paymentsController.Payment(_paymentDetails);
+            var okResult = result as OkObjectResult;
 
             _paymentServiceMock.Verify(x => x.validatePayment(_paymentDetails), Times.Once);
-            _queueIntegrationServiceMock.Verify(x => x.Publish(JsonConvert.SerializeObject(_paymentDetails)), Times.Once);
+            _queueProducerMock.Verify(x => x.Publish(JsonConvert.SerializeObject(_paymentDetails)), Times.Once);
+
+            Assert.IsNotNull(okResult);
+            Assert.That(okResult.StatusCode, Is.EqualTo(200));
+            Assert.That(okResult.Value, Is.EqualTo(_paymentDetails.PaymentId));
         }
     }
 }

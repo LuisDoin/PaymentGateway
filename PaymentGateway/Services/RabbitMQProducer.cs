@@ -3,11 +3,11 @@ using System.Text;
 
 namespace PaymentGateway.Services
 {
-    public class RabbitMQIntegrationService : RabbitMQIntegrationBase
+    public class RabbitMQProducer : RabbitMQProducerBase
     {
         private readonly IModel _pendingTransactionsChannel;
 
-        public RabbitMQIntegrationService(IConnection connection) : base(connection)
+        public RabbitMQProducer(IConnection connection) : base(connection)
         {
             _pendingTransactionsChannel = connection.CreateModel();
             _pendingTransactionsChannel.QueueDeclare("pending_transactions", durable: true, exclusive: false, autoDelete: false, arguments: null);

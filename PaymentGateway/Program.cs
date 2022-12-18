@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<IPaymentService, PaymentService>();
-builder.Services.AddSingleton<IQueueIntegrationService, RabbitMQIntegrationService>();
+builder.Services.AddSingleton<IQueueProducer, RabbitMQProducer>();
 builder.Services.AddSingleton<IConnection>(sp =>
         {
             var factory = new ConnectionFactory()
