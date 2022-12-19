@@ -5,6 +5,7 @@ using Model.ModelValidationServices;
 using Model.Utils;
 using PaymentProcessor.Config;
 using PaymentProcessor.Mappers.Interfaces;
+using PaymentProcessor.Services.Interfaces;
 using System.Text;
 using System.Text.Json;
 using static System.Net.Mime.MediaTypeNames;
@@ -13,21 +14,21 @@ namespace PaymentProcessor.Consumers
 {
     public class PaymentConsumer : IConsumer<PaymentDetails>
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientProvider _httpClientProvider;
         private readonly IPaymentValidationService _paymentValidationService;
         private readonly ICKOMapper _ckoMapper;
         private readonly ILogger<PaymentConsumer> _logger;
         private readonly CKOBankSettings _cKOBankSettings;
         private readonly RabbitMQSettings _rabbitMQSettings;
 
-        public PaymentConsumer(IHttpClientFactory httpClientFactory,
+        public PaymentConsumer(IHttpClientProvider httpClientProvider,
             IPaymentValidationService paymentValidationService,
             ICKOMapper ckoMapper,
             ILogger<PaymentConsumer> logger,
             IOptions<CKOBankSettings> CKOBankOptions,
             IOptions<RabbitMQSettings> rabbitMQOptions)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClientProvider = httpClientProvider;
             _paymentValidationService = paymentValidationService;
             _ckoMapper = ckoMapper;
             _logger = logger;
@@ -47,9 +48,9 @@ namespace PaymentProcessor.Consumers
 
                 var ckoPaymentInfoDTO = _ckoMapper.ToDto(message);
 
-                var httpClient = _httpClientFactory.CreateClient();
-                var paymentJson = new StringContent(JsonSerializer.Serialize(ckoPaymentInfoDTO), Encoding.UTF8, Application.Json); 
-                using var httpResponseMessage = await httpClient.PostAsync(_cKOBankSettings.Uri, paymentJson);
+                
+                var paymentJson = JsonSerializer.Serialize(ckoPaymentInfoDTO); 
+                using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, paymentJson);
 
                 httpResponseMessage.EnsureSuccessStatusCode();
 

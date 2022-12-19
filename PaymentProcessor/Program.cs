@@ -4,12 +4,15 @@ using PaymentProcessor.Config;
 using PaymentProcessor.Consumers;
 using PaymentProcessor.Mappers;
 using PaymentProcessor.Mappers.Interfaces;
+using PaymentProcessor.Services;
+using PaymentProcessor.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddScoped<IPaymentValidationService, PaymentValidationService>();
+builder.Services.AddScoped<IHttpClientProvider, HttpClientProvider>();
 builder.Services.AddScoped<ICKOMapper, CKOMapper>();
 
 builder.Services.AddMassTransit(config =>

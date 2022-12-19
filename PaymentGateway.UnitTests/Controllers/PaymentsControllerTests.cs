@@ -22,7 +22,7 @@ namespace PaymentGateway.UnitTests.Controllers
         private Mock<ISendEndpoint> _sendEndpointMock;
         private PaymentsController _paymentsController;
         private PaymentDetails _paymentDetails;
-        private RabbitMQSettings _rabbitmqSettings;
+        private RabbitMQSettings _rabbitMQSettings;
 
 
         [SetUp]
@@ -33,24 +33,24 @@ namespace PaymentGateway.UnitTests.Controllers
             _loggerMock = new Mock<ILogger<PaymentsController>>();
             _sendEndpointProviderMock = new Mock<ISendEndpointProvider>();
             _sendEndpointMock = new Mock<ISendEndpoint>();
-            _rabbitmqSettings = new RabbitMQSettings()
+            _rabbitMQSettings = new RabbitMQSettings()
             {
                 Uri = "amqp://guest:guest@localhost:5672",
-                pendingTransactionsQueue = "pending-transactions"
+                PendingTransactionsQueue = "pending-transactions"
             };
-            _paymentsController = new PaymentsController(_paymentValidationServiceMock.Object, _sendEndpointProviderMock.Object, _loggerMock.Object, Options.Create(_rabbitmqSettings));
+            _paymentsController = new PaymentsController(_paymentValidationServiceMock.Object, _sendEndpointProviderMock.Object, _loggerMock.Object, Options.Create(_rabbitMQSettings));
             _paymentDetails = new PaymentDetails(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
-            _sendEndpointProviderMock.Setup(x => x.GetSendEndpoint(new Uri($"queue:{_rabbitmqSettings.pendingTransactionsQueue}"))).ReturnsAsync(_sendEndpointMock.Object);
+            _sendEndpointProviderMock.Setup(x => x.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.PendingTransactionsQueue}"))).ReturnsAsync(_sendEndpointMock.Object);
         }
 
         [Test]
-        public void Payment_ProcessSuccessfully_CallsValidationAndPublishMethodsAndReturnsOk()
+        public async Task Payment_ProcessSuccessfully_CallsValidationAndPublishMethodsAndReturnsOk()
         {
-            var result = _paymentsController.Payment(_paymentDetails).Result;
+            var result = await _paymentsController.Payment(_paymentDetails);
             var okResult = result as OkObjectResult;
 
             _paymentValidationServiceMock.Verify(x => x.ValidatePayment(_paymentDetails), Times.Once);
-            _sendEndpointProviderMock.Verify(x => x.GetSendEndpoint(new Uri($"queue:{_rabbitmqSettings.pendingTransactionsQueue}")), Times.Once);
+            _sendEndpointProviderMock.Verify(x => x.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.PendingTransactionsQueue}")), Times.Once);
             _sendEndpointMock.Verify(x => x.Send(_paymentDetails, default), Times.Once);
 
             Assert.IsNotNull(okResult);
@@ -59,11 +59,11 @@ namespace PaymentGateway.UnitTests.Controllers
         }
 
         [Test]
-        public void Payment_ValidationFail_ReturnBadRequest()
+        public async Task Payment_ValidationFail_ReturnBadRequest()
         {
             _paymentValidationServiceMock.Setup(x => x.ValidatePayment(It.IsAny<PaymentDetails>())).Throws<ArgumentException>();
 
-            var result = _paymentsController.Payment(_paymentDetails).Result;
+            var result = await _paymentsController.Payment(_paymentDetails);
             var badRequestResult = result as BadRequestObjectResult;
 
             Assert.IsNotNull(badRequestResult);

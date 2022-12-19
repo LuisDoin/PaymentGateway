@@ -35,11 +35,11 @@ namespace CKOBankSimulatorTests.Controllers
         }
 
         [Test]
-        public void Payment_HitsTheCache_ReturnsOkImmediately()
+        public async Task Payment_HitsTheCache_ReturnsOkImmediately()
         {
             _cacheMock.Setup(c => c.Contains(_stringPaymentId)).ReturnsAsync(true);
 
-            var result = _paymentsController.Payment(_paymentInfo).Result;
+            var result = await _paymentsController.Payment(_paymentInfo);
             var okResult = result as OkObjectResult;
 
             _cacheMock.Verify(x => x.Contains(_stringPaymentId), Times.Once);
@@ -53,12 +53,12 @@ namespace CKOBankSimulatorTests.Controllers
         }
 
         [Test]
-        public void Payment_DoesNotHitTheCacheAndHasSufficientFunds_ReturnsOkAndSavesOnCache()
+        public async Task Payment_DoesNotHitTheCacheAndHasSufficientFunds_ReturnsOkAndSavesOnCache()
         {
             _cacheMock.Setup(c => c.Contains(_stringPaymentId)).ReturnsAsync(false);
             _paymentServiceMock.Setup(c => c.IsThereEnoughCredditLimit(_paymentInfo)).Returns(true);
 
-            var result = _paymentsController.Payment(_paymentInfo).Result;
+            var result = await _paymentsController.Payment(_paymentInfo);
             var okResult = result as OkObjectResult;
 
             _cacheMock.Verify(x => x.Contains(_stringPaymentId), Times.Once);
@@ -72,12 +72,12 @@ namespace CKOBankSimulatorTests.Controllers
         }
 
         [Test]
-        public void Payment_DoesNotHitTheCacheAndDoesNotHaveSufficientFunds_ReturnsBadRequest()
+        public async Task Payment_DoesNotHitTheCacheAndDoesNotHaveSufficientFunds_ReturnsBadRequest()
         {
             _cacheMock.Setup(c => c.Contains(_stringPaymentId)).ReturnsAsync(false);
             _paymentServiceMock.Setup(c => c.IsThereEnoughCredditLimit(_paymentInfo)).Returns(false);
 
-            var result = _paymentsController.Payment(_paymentInfo).Result;
+            var result = await _paymentsController.Payment(_paymentInfo);
             var okResult = result as BadRequestObjectResult;
 
             _cacheMock.Verify(x => x.Contains(_stringPaymentId), Times.Once);

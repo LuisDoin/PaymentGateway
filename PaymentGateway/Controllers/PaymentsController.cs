@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.ModelValidationServices;
+using Model.Utils;
 using PaymentProcessor.Config;
 
 namespace PaymentGateway.Controllers
@@ -42,12 +43,13 @@ namespace PaymentGateway.Controllers
             try
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
+                paymentDetails.Status = PaymentStatus.Processing;
 
                 _logger.LogInformation($"Processing payment {paymentDetails}");
 
                 _paymentValidationService.ValidatePayment(paymentDetails);
 
-                var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.pendingTransactionsQueue}"));
+                var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.PendingTransactionsQueue}"));
                 await sendEndpoint.Send(paymentDetails);
 
                 return Ok(paymentDetails.PaymentId);
