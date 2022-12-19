@@ -1,7 +1,9 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.ModelValidationServices;
+using PaymentProcessor.Config;
 
 namespace PaymentGateway.Controllers
 {
@@ -10,14 +12,19 @@ namespace PaymentGateway.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentValidationService _paymentValidationService;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly ILogger<PaymentsController> _logger;
+        private readonly RabbitMQSettings _rabbitMQSettings;
 
-        public PaymentsController(IPaymentValidationService paymentValidationService, IPublishEndpoint publishEndpoint, ILogger<PaymentsController> logger)
+        public PaymentsController(IPaymentValidationService paymentValidationService, 
+            ISendEndpointProvider sendEndpointProvider, 
+            ILogger<PaymentsController> logger, 
+            IOptions<RabbitMQSettings> options)
         {
             _paymentValidationService = paymentValidationService;
-            _publishEndpoint = publishEndpoint;
+            _sendEndpointProvider = sendEndpointProvider;
             _logger = logger;
+            _rabbitMQSettings = options.Value;
         }
 
         /// <summary>
@@ -36,22 +43,23 @@ namespace PaymentGateway.Controllers
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
 
-                _logger.LogInformation("Processing payment {PaymentId}", paymentDetails);
+                _logger.LogInformation($"Processing payment {paymentDetails}");
 
                 _paymentValidationService.ValidatePayment(paymentDetails);
 
-                await _publishEndpoint.Publish<PaymentDetails>(paymentDetails);
+                var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.pendingTransactionsQueue}"));
+                await sendEndpoint.Send(paymentDetails);
 
                 return Ok(paymentDetails.PaymentId);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogInformation(ex, "Payment {PaymentId} returned as a BadRequest", paymentDetails.PaymentId);
+                _logger.LogInformation(ex, $"Payment {paymentDetails.PaymentId} returned as a BadRequest");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Payment {PaymentId} returned an error", paymentDetails.PaymentId);
+                _logger.LogError(ex, $"Payment {paymentDetails.PaymentId} returned an error");
                 return StatusCode(500, ex.Message);
             }
         }

@@ -1,12 +1,15 @@
 using MassTransit;
 using Microsoft.OpenApi.Models;
 using Model.ModelValidationServices;
+using PaymentProcessor.Config;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<IPaymentValidationService, PaymentValidationService>();
+
+builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
 
 builder.Services.AddMassTransit(config =>
 {

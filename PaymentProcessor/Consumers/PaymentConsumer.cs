@@ -16,32 +16,29 @@ namespace PaymentProcessor.Consumers
     public class PaymentConsumer : IConsumer<PaymentDetails>
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IPublishEndpoint _publishEndpoint;
-        private readonly ILogger<PaymentConsumer> _logger;
-        private readonly CKOBankSettings _cKOBankSettings;
         private readonly IPaymentValidationService _paymentValidationService;
         private readonly ICKOMapper _ckoMapper;
+        private readonly ILogger<PaymentConsumer> _logger;
+        private readonly CKOBankSettings _cKOBankSettings;
 
         public PaymentConsumer(IHttpClientFactory httpClientFactory,
-            IPublishEndpoint publishEndpoint,
-            ILogger<PaymentConsumer> logger,
-            IOptions<CKOBankSettings> options,
             IPaymentValidationService paymentValidationService,
-            ICKOMapper ckoMapper)
+            ICKOMapper ckoMapper,
+            ILogger<PaymentConsumer> logger,
+            IOptions<CKOBankSettings> options)
         {
             _httpClientFactory = httpClientFactory;
-            _publishEndpoint = publishEndpoint;
-            _logger = logger;
-            _cKOBankSettings = options.Value;
             _paymentValidationService = paymentValidationService;
             _ckoMapper = ckoMapper;
+            _logger = logger;
+            _cKOBankSettings = options.Value;
         }
 
         public async Task Consume(ConsumeContext<PaymentDetails> context)
         {
             try
             {
-                _logger.LogInformation("Processing payment {PaymentId}.", context.Message.PaymentId);
+                _logger.LogInformation($"Processing payment {context.Message.PaymentId}");
 
                 var message = context.Message;
 
@@ -57,11 +54,12 @@ namespace PaymentProcessor.Consumers
 
                 message.Status = PaymentStatus.Successful;
 
-                await _publishEndpoint.Publish(message);
+                var sendEndpoint = await context.GetSendEndpoint(new Uri($"queue:{_cKOBankSettings.CompletedTransactionsQueue}"));
+                await sendEndpoint.Send(message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while processing payment {PaymentId}." , context.Message.PaymentId);
+                _logger.LogError(ex, $"Error while processing payment {context.Message.PaymentId}.");
                 throw;
             }
         }

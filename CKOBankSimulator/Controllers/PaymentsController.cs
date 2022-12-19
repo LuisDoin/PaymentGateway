@@ -33,20 +33,20 @@ namespace CKOBankSimulator.Controllers
             {
                 _paymentService.ValidatePaymentInfo(paymentInfo);
 
-                _logger.LogInformation("Processing payment {PaymentId}", paymentInfo.PaymentId);
+                _logger.LogInformation($"Processing payment {paymentInfo.PaymentId}");
 
                 var paymentId = paymentInfo.PaymentId.ToString();
 
                 //This check is providing idempotence, preventing us from charging twice for the same purchase. 
                 if (await _cache.Contains(paymentId))
                 {
-                    _logger.LogInformation("Payment {PaymentId} already processed", paymentInfo.PaymentId);
+                    _logger.LogInformation($"Payment {paymentInfo.PaymentId} already processed");
                     return Ok();
                 }
 
                 if (!_paymentService.IsThereEnoughCredditLimit(paymentInfo))
                 {
-                    _logger.LogInformation("Unsuccessful payment: not enough limit. PaymentId: {PaymentId}", paymentInfo.PaymentId);
+                    _logger.LogInformation($"Unsuccessful payment: not enough limit. PaymentId: {paymentInfo.PaymentId}");
                     return BadRequest("Not enough limit.");
                 }
                 _paymentService.ProcessPayment(paymentInfo);
@@ -63,7 +63,7 @@ namespace CKOBankSimulator.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Payment {PaymentId} returned an error", paymentInfo.PaymentId);
+                _logger.LogError(ex, $"Payment {paymentInfo.PaymentId} returned an error");
                 return StatusCode(500, ex.Message);
             }
         }
