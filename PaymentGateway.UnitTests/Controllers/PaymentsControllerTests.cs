@@ -15,12 +15,12 @@ namespace PaymentGateway.UnitTests.Controllers
     [TestFixture]
     class PaymentsControllerTests
     {
+        private Fixture _fixture;
         private Mock<IPaymentValidationService> _paymentValidationServiceMock;
         private Mock<ILogger<PaymentsController>> _loggerMock;
         private Mock<ISendEndpointProvider> _sendEndpointProviderMock;
         private Mock<ISendEndpoint> _sendEndpointMock;
         private PaymentsController _paymentsController;
-        private Fixture _fixture;
         private PaymentDetails _paymentDetails;
         private RabbitMQSettings _rabbitmqSettings;
 
@@ -44,19 +44,7 @@ namespace PaymentGateway.UnitTests.Controllers
         }
 
         [Test]
-        public void Payment_ValidationFail_ReturnBadRequest()
-        {
-            _paymentValidationServiceMock.Setup(x => x.ValidatePayment(It.IsAny<PaymentDetails>())).Throws<ArgumentException>();
-
-            var result = _paymentsController.Payment(_paymentDetails).Result;
-            var badRequestResult = result as BadRequestObjectResult;
-
-            Assert.IsNotNull(badRequestResult);
-            Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
-        }
-
-        [Test]
-        public void Payment_ProcessSuccessuflly_CallsValidationAndPublishMethodsAndReturnOk()
+        public void Payment_ProcessSuccessfully_CallsValidationAndPublishMethodsAndReturnsOk()
         {
             var result = _paymentsController.Payment(_paymentDetails).Result;
             var okResult = result as OkObjectResult;
@@ -68,6 +56,18 @@ namespace PaymentGateway.UnitTests.Controllers
             Assert.IsNotNull(okResult);
             Assert.That(okResult.StatusCode, Is.EqualTo(200));
             Assert.That(okResult.Value, Is.EqualTo(_paymentDetails.PaymentId));
+        }
+
+        [Test]
+        public void Payment_ValidationFail_ReturnBadRequest()
+        {
+            _paymentValidationServiceMock.Setup(x => x.ValidatePayment(It.IsAny<PaymentDetails>())).Throws<ArgumentException>();
+
+            var result = _paymentsController.Payment(_paymentDetails).Result;
+            var badRequestResult = result as BadRequestObjectResult;
+
+            Assert.IsNotNull(badRequestResult);
+            Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
         }
     }
 }

@@ -2,6 +2,15 @@
 {
     public class PaymentInfo
     {
+        public PaymentInfo(string creditCardNumber, string expirationDate, string cvv, string currency, decimal amount)
+        {
+            CreditCardNumber = creditCardNumber;
+            ExpirationDate = expirationDate;
+            Cvv = cvv;
+            Currency = currency;
+            Amount = amount;
+        }
+
         public Guid PaymentId { get; set; }
         public string CreditCardNumber { get; set; }
         public string ExpirationDate { get; set; }

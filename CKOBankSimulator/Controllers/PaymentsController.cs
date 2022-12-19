@@ -41,7 +41,7 @@ namespace CKOBankSimulator.Controllers
                 if (await _cache.Contains(paymentId))
                 {
                     _logger.LogInformation($"Payment {paymentInfo.PaymentId} already processed");
-                    return Ok();
+                    return Ok(paymentInfo.PaymentId);
                 }
 
                 if (!_paymentService.IsThereEnoughCredditLimit(paymentInfo))
@@ -49,6 +49,7 @@ namespace CKOBankSimulator.Controllers
                     _logger.LogInformation($"Unsuccessful payment: not enough limit. PaymentId: {paymentInfo.PaymentId}");
                     return BadRequest("Not enough limit.");
                 }
+
                 _paymentService.ProcessPayment(paymentInfo);
 
                 //Here, we have a hole in our system. If the server crashes after processing the payment but before saving it to the cache,

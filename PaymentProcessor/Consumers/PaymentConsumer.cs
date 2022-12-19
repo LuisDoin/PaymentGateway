@@ -1,15 +1,13 @@
 ﻿using MassTransit;
-using Model;
-using static System.Net.Mime.MediaTypeNames;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text;
-using PaymentProcessor.Config;
 using Microsoft.Extensions.Options;
+using Model;
 using Model.ModelValidationServices;
-using PaymentProcessor.Mappers;
-using PaymentProcessor.Mappers.Interfaces;
 using Model.Utils;
+using PaymentProcessor.Config;
+using PaymentProcessor.Mappers.Interfaces;
+using System.Text;
+using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Consumers
 {
@@ -20,18 +18,21 @@ namespace PaymentProcessor.Consumers
         private readonly ICKOMapper _ckoMapper;
         private readonly ILogger<PaymentConsumer> _logger;
         private readonly CKOBankSettings _cKOBankSettings;
+        private readonly RabbitMQSettings _rabbitMQSettings;
 
         public PaymentConsumer(IHttpClientFactory httpClientFactory,
             IPaymentValidationService paymentValidationService,
             ICKOMapper ckoMapper,
             ILogger<PaymentConsumer> logger,
-            IOptions<CKOBankSettings> options)
+            IOptions<CKOBankSettings> CKOBankOptions,
+            IOptions<RabbitMQSettings> rabbitMQOptions)
         {
             _httpClientFactory = httpClientFactory;
             _paymentValidationService = paymentValidationService;
             _ckoMapper = ckoMapper;
             _logger = logger;
-            _cKOBankSettings = options.Value;
+            _cKOBankSettings = CKOBankOptions.Value;
+            _rabbitMQSettings = rabbitMQOptions.Value;
         }
 
         public async Task Consume(ConsumeContext<PaymentDetails> context)
@@ -54,7 +55,7 @@ namespace PaymentProcessor.Consumers
 
                 message.Status = PaymentStatus.Successful;
 
-                var sendEndpoint = await context.GetSendEndpoint(new Uri($"queue:{_cKOBankSettings.CompletedTransactionsQueue}"));
+                var sendEndpoint = await context.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.CompletedTransactionsQueue}"));
                 await sendEndpoint.Send(message);
             }
             catch (Exception ex)
