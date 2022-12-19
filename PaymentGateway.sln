@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CKOBankSimulator", "CKOBank
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceIntegrationLibrary.UnitTests", "ServicesIntegrationLibrary.UnitTests\ServiceIntegrationLibrary.UnitTests.csproj", "{CCF03DF8-4133-49A8-8916-C7AD6A10CA14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CKOBankSimulatorTests", "CKOBankSimulatorTests\CKOBankSimulatorTests.csproj", "{FE8C32FB-E14F-4FCF-9FFA-4A22755F3999}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CKOBankSimulatorTests", "CKOBankSimulatorTests\CKOBankSimulatorTests.csproj", "{FE8C32FB-E14F-4FCF-9FFA-4A22755F3999}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentProcessorUnitTests", "PaymentProcessorTests\PaymentProcessorUnitTests.csproj", "{606AA5B6-589A-4DF8-8043-DA510E68FA16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentProcessorUnitTests", "PaymentProcessorTests\PaymentProcessorUnitTests.csproj", "{606AA5B6-589A-4DF8-8043-DA510E68FA16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,9 +6,7 @@ using Model.Utils;
 using PaymentProcessor.Config;
 using PaymentProcessor.Mappers.Interfaces;
 using PaymentProcessor.Services.Interfaces;
-using System.Text;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Consumers
 {

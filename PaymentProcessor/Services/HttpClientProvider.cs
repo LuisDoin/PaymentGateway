@@ -1,11 +1,10 @@
-﻿using PaymentProcessor.Config;
-using PaymentProcessor.Services.Interfaces;
-using System.Net.Http;
-using static System.Net.Mime.MediaTypeNames;
+﻿using PaymentProcessor.Services.Interfaces;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Services
 {
+    //This class provide us greater freedom during testing.
     public class HttpClientProvider : IHttpClientProvider
     {
         private readonly IHttpClientFactory _httpClientFactory;
