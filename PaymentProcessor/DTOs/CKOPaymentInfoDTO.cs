@@ -1,6 +1,6 @@
-﻿namespace CKOBankSimulator.Model
+﻿namespace PaymentProcessor.DTOs
 {
-    public class PaymentInfo
+    public class CKOPaymentInfoDTO
     {
         public Guid PaymentId { get; set; }
         public string CreditCardNumber { get; set; }

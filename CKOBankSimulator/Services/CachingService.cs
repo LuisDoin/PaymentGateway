@@ -4,12 +4,12 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace CKOBankSimulator.Services
 {
-    public class CashingService : ICachingService
+    public class CachingService : ICachingService
     {
         private readonly IDistributedCache _cache;
         private readonly DistributedCacheEntryOptions _options;
 
-        public CashingService(IDistributedCache cache)
+        public CachingService(IDistributedCache cache)
         {
             _cache = cache;
             _options = new DistributedCacheEntryOptions

@@ -1,18 +1,15 @@
-﻿using Model;
-using PaymentGateway.Services.Interfaces;
-using PaymentGateway.Utils;
+﻿using Model.Utils;
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace PaymentGateway.Services
+namespace Model.ModelValidationServices
 {
-    public class PaymentService : IPaymentService
+    public class PaymentValidationService : IPaymentValidationService
     {
-        public void validatePayment(PaymentDetails paymentDetails)
+        public void ValidatePayment(PaymentDetails paymentDetails)
         {
             if (paymentDetails == null) throw new ArgumentException("PurchaseDetails cannot be null.");
-
-            if (!IsValidEmail(paymentDetails.Email.Trim())) throw new ArgumentException("Invalid email adress.");
 
             if (!isValidCreditCard(paymentDetails.CreditCardNumber.Trim())) throw new ArgumentException("Invalid credit card number.");
 
@@ -33,7 +30,7 @@ namespace PaymentGateway.Services
             var isValidLength = cardNumber.Length >= 8 && cardNumber.Length <= 19;
             var sum = sumOfDoubleEvenPlace(cardNumber) + sumOfOddPlace(cardNumber);
             var isValidSum = sum > 0 && sum % 10 == 0;
-            
+
             return isValidLength && isValidSum;
         }
 
@@ -64,43 +61,6 @@ namespace PaymentGateway.Services
             return sum;
         }
 
-        private static bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                return false;
-
-            try
-            {
-                // Normalize the domain
-                email = Regex.Replace(email, @"(@)(.+)$", DomainMapper, RegexOptions.None, TimeSpan.FromMilliseconds(200));
-
-                // Examines the domain part of the email and normalizes it.
-                string DomainMapper(Match match)
-                {
-                    // Use IdnMapping class to convert Unicode domain names.
-                    var idn = new IdnMapping();
-
-                    // Pull out and process domain name (throws ArgumentException on invalid)
-                    string domainName = idn.GetAscii(match.Groups[2].Value);
-
-                    return match.Groups[1].Value + domainName;
-                }
-            }
-            catch (Exception ex) when (ex is ArgumentException || ex is RegexMatchTimeoutException)
-            {
-                return false;
-            }
-
-            try
-            {
-                return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
-            }
-            catch (RegexMatchTimeoutException)
-            {
-                return false;
-            }
-        }
-
         private bool isValidExpirationDate(string expirationDate)
         {
             if (string.IsNullOrWhiteSpace(expirationDate))
@@ -111,10 +71,10 @@ namespace PaymentGateway.Services
             if (dateParts.Length != 2)
                 return false;
 
-            var month = dateParts[0]; 
+            var month = dateParts[0];
             var year = dateParts[1];
 
-            return Regex.IsMatch(month, @"^(0[1-9]|1[0-2])$") && Regex.IsMatch(year, @"^20[2-9][0-9]$"); 
+            return Regex.IsMatch(month, @"^(0[1-9]|1[0-2])$") && Regex.IsMatch(year, @"^20[2-9][0-9]$");
         }
     }
 }

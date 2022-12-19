@@ -1,19 +1,18 @@
 using MassTransit;
 using Microsoft.OpenApi.Models;
-using PaymentGateway.Services;
-using PaymentGateway.Services.Interfaces;
+using Model.ModelValidationServices;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<IPaymentService, PaymentService>();
+builder.Services.AddSingleton<IPaymentValidationService, PaymentValidationService>();
 
 builder.Services.AddMassTransit(config =>
 {
     config.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("amqp://guest:guest@localhost:5672");
+        cfg.Host(builder.Configuration.GetSection("RabbitMQ").GetSection("Uri").Value);
     });
 });
 

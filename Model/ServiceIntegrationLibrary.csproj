@@ -46,9 +46,14 @@
   <ItemGroup>
     <Compile Include="Models\PaymentDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\PaymentStatus.cs" />
+    <Compile Include="Utils\SupportedCurrencies.cs" />
+    <Compile Include="ModelValidationServices\IPaymentValidationService.cs" />
+    <Compile Include="ModelValidationServices\PaymentValidationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

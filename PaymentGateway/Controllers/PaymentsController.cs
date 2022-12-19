@@ -1,8 +1,7 @@
 ﻿using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Model;
-using PaymentGateway.Services.Interfaces;
+using Model.ModelValidationServices;
 
 namespace PaymentGateway.Controllers
 {
@@ -10,13 +9,13 @@ namespace PaymentGateway.Controllers
     [Route("[controller]")]
     public class PaymentsController : Controller
     {
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentValidationService _paymentValidationService;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IPaymentService paymentService, IPublishEndpoint publishEndpoint, ILogger<PaymentsController> logger)
+        public PaymentsController(IPaymentValidationService paymentValidationService, IPublishEndpoint publishEndpoint, ILogger<PaymentsController> logger)
         {
-            _paymentService = paymentService;
+            _paymentValidationService = paymentValidationService;
             _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
@@ -37,9 +36,9 @@ namespace PaymentGateway.Controllers
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
 
-                _logger.LogInformation("Processing payment", paymentDetails);
+                _logger.LogInformation("Processing payment {PaymentId}", paymentDetails);
 
-                _paymentService.validatePayment(paymentDetails);
+                _paymentValidationService.ValidatePayment(paymentDetails);
 
                 await _publishEndpoint.Publish<PaymentDetails>(paymentDetails);
 
@@ -47,12 +46,12 @@ namespace PaymentGateway.Controllers
             }
             catch (ArgumentException ex)
             {
-                _logger.LogInformation("Payment " + paymentDetails.PaymentId + " returned as a BadRequest");
+                _logger.LogInformation(ex, "Payment {PaymentId} returned as a BadRequest", paymentDetails.PaymentId);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Payment " + paymentDetails.PaymentId + " returned an error. Error message: " + ex.Message + " StackTrace: " + ex.StackTrace);
+                _logger.LogError(ex, "Payment {PaymentId} returned an error", paymentDetails.PaymentId);
                 return StatusCode(500, ex.Message);
             }
         }

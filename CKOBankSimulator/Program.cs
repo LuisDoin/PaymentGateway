@@ -4,13 +4,13 @@ using CKOBankSimulator.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<ICachingService, CashingService>();
+builder.Services.AddScoped<ICachingService, CachingService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddStackExchangeRedisCache(o =>
 {
-    o.InstanceName = "RedisInstance";
-    o.Configuration = "localhost:6379";
+    o.InstanceName = builder.Configuration.GetSection("Redis").GetSection("InstanceName").Value;
+    o.Configuration = builder.Configuration.GetSection("Redis").GetSection("Uri").Value;
 });
 
 builder.Services.AddControllers();
