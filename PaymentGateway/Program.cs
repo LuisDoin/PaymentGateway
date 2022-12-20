@@ -1,7 +1,7 @@
 using MassTransit;
 using Microsoft.OpenApi.Models;
-using Model.ModelValidationServices;
 using PaymentProcessor.Config;
+using ServiceIntegrationLibrary.ModelValidationServices;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,10 +1,10 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Model;
-using Model.ModelValidationServices;
-using Model.Utils;
 using PaymentProcessor.Config;
+using ServiceIntegrationLibrary.Models;
+using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils;
 
 namespace PaymentGateway.Controllers
 {

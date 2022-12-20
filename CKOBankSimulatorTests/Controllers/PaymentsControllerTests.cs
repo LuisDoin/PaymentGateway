@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using CKOBankSimulator.Services.Interfaces;
-using CKOBankSimulator.Model;
+using CKOBankSimulator.Models;
 using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 

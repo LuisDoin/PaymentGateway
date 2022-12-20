@@ -1,11 +1,6 @@
-﻿using CKOBankSimulator.Model;
+﻿using CKOBankSimulator.Models;
 using CKOBankSimulator.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Redis;
-using System.Diagnostics;
-using System.Reflection.PortableExecutable;
-using System;
 
 namespace CKOBankSimulator.Controllers
 {
@@ -26,7 +21,6 @@ namespace CKOBankSimulator.Controllers
         }
 
         [HttpPost("processPayment")]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
         public async Task<IActionResult> Payment([FromBody] PaymentInfo paymentInfo)
         {
             try

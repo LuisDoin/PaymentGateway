@@ -1,4 +1,4 @@
-﻿using CKOBankSimulator.Model;
+﻿using CKOBankSimulator.Models;
 
 namespace CKOBankSimulator.Services.Interfaces
 {

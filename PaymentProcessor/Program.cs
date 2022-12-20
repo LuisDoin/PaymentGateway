@@ -1,11 +1,11 @@
 using MassTransit;
-using Model.ModelValidationServices;
 using PaymentProcessor.Config;
 using PaymentProcessor.Consumers;
 using PaymentProcessor.Mappers;
 using PaymentProcessor.Mappers.Interfaces;
 using PaymentProcessor.Services;
 using PaymentProcessor.Services.Interfaces;
+using ServiceIntegrationLibrary.ModelValidationServices;
 
 var builder = WebApplication.CreateBuilder(args);
 

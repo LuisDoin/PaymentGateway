@@ -1,4 +1,4 @@
-﻿namespace CKOBankSimulator.Model
+﻿namespace CKOBankSimulator.Models
 {
     public class PaymentInfo
     {

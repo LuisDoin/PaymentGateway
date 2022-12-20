@@ -1,8 +1,8 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Options;
-using Model;
-using Model.ModelValidationServices;
-using Model.Utils;
+using ServiceIntegrationLibrary.Models;
+using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils;
 using PaymentProcessor.Config;
 using PaymentProcessor.Mappers.Interfaces;
 using PaymentProcessor.Services.Interfaces;
@@ -45,9 +45,7 @@ namespace PaymentProcessor.Consumers
                 _paymentValidationService.ValidatePayment(message);
 
                 var ckoPaymentInfoDTO = _ckoMapper.ToDto(message);
-
-                
-                var paymentJson = JsonSerializer.Serialize(ckoPaymentInfoDTO); 
+                var paymentJson = JsonSerializer.Serialize(ckoPaymentInfoDTO);
                 using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, paymentJson);
 
                 httpResponseMessage.EnsureSuccessStatusCode();

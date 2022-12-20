@@ -5,7 +5,7 @@ namespace PaymentProcessor.Services
     //This class provide us greater freedom during testing.
     public class HttpResponseMessageProvider : IHttpResponseMessageProvider
     {
-        private readonly HttpResponseMessage _httpResponseMessage;
+        public readonly HttpResponseMessage _httpResponseMessage;
 
         public HttpResponseMessageProvider(HttpResponseMessage httpResponseMessage)
         {

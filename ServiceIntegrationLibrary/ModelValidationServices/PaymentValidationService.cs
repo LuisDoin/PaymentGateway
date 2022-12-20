@@ -1,10 +1,9 @@
-﻿
-using ServiceIntegrationLibrary.Utils;
-using ServiceIntegrationLibrary.Models;
+﻿using Model.Utils;
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace ServiceIntegrationLibrary.ModelValidationServices
+namespace Model.ModelValidationServices
 {
     public class PaymentValidationService : IPaymentValidationService
     {
@@ -13,6 +12,8 @@ namespace ServiceIntegrationLibrary.ModelValidationServices
             if (paymentDetails == null) throw new ArgumentException("PurchaseDetails cannot be null.");
 
             if (!isValidCreditCard(paymentDetails.CreditCardNumber.Trim())) throw new ArgumentException("Invalid credit card number.");
+
+            if(paymentDetails.MerchantId == 0) throw new ArgumentException("Invalid merchant id");
 
             if (!isValidExpirationDate(paymentDetails.ExpirationDate.Trim())) throw new ArgumentException("Invalid expiration date.");
 

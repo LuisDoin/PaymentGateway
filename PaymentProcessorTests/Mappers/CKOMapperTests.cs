@@ -1,16 +1,9 @@
 ﻿using AutoFixture;
-using MassTransit;
-using Model;
-using Model.ModelValidationServices;
 using NUnit.Framework;
 using PaymentProcessor.Mappers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ServiceIntegrationLibrary.Models;
 
-namespace PaymentProcessorTests.Mappers
+namespace PaymentProcessorUnitTests.Mappers
 {
     [TestFixture]
     class CKOMapperTests
@@ -24,7 +17,7 @@ namespace PaymentProcessorTests.Mappers
         {
             _fixture = new Fixture();
             _ckoMapper = new CKOMapper();
-            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
+            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
         }
 
         [Test]

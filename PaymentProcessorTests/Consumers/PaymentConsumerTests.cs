@@ -55,7 +55,7 @@ namespace PaymentProcessorUnitTests.Consumers
                 CompletedTransactionsQueue = "complete-transactions"
             };
 
-            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
+            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
             _ckoPaymentInfoDTO = new CKOPaymentInfoDTO();
             CKOBankDtotJson = JsonSerializer.Serialize(_ckoPaymentInfoDTO);
 

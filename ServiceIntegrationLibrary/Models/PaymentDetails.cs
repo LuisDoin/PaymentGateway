@@ -1,7 +1,8 @@
-﻿using ServiceIntegrationLibrary.Utils;
+﻿using Model.Utils;
+using Newtonsoft.Json;
 using System;
 
-namespace ServiceIntegrationLibrary.Models
+namespace Model
 {
     public class PaymentDetails
     {

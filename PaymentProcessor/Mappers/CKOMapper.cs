@@ -1,6 +1,6 @@
-﻿using Model;
-using PaymentProcessor.DTOs;
+﻿using PaymentProcessor.DTOs;
 using PaymentProcessor.Mappers.Interfaces;
+using ServiceIntegrationLibrary.Models;
 
 namespace PaymentProcessor.Mappers
 {
