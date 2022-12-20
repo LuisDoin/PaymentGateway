@@ -7,20 +7,20 @@ namespace TransactionsApi.Migrations
     {
         public override void Down()
         {
-            Delete.Table("Transactions");
+            Delete.Table("Payments");
         }
         public override void Up()
         {
-            Create.Table("Transactions")
-                .WithColumn("PaymentId").AsGuid().NotNullable().PrimaryKey()
-                .WithColumn("MerchantId").AsInt64().NotNullable()
-                .WithColumn("CreditCard").AsString(40).NotNullable()
-                .WithColumn("ExpirationDate").AsString(10).NotNullable()
-                .WithColumn("Cvv").AsString(10).NotNullable()
-                .WithColumn("Currency").AsString(10).NotNullable()
-                .WithColumn("Amount").AsDecimal().NotNullable()
-                .WithColumn("CreationDate").AsDate().NotNullable()
-                .WithColumn("Status").AsString(20).NotNullable();
+            Create.Table("Payments")
+                .WithColumn("paymentId").AsGuid().NotNullable().PrimaryKey()
+                .WithColumn("merchantId").AsInt64().NotNullable()
+                .WithColumn("creditCard").AsString(40).NotNullable()
+                .WithColumn("expirationDate").AsString(10).NotNullable()
+                .WithColumn("cvv").AsString(10).NotNullable()
+                .WithColumn("currency").AsString(10).NotNullable()
+                .WithColumn("amount").AsDecimal().NotNullable()
+                .WithColumn("creationDate").AsDateTime().NotNullable()
+                .WithColumn("status").AsString(20).NotNullable();
         }
     }
 }

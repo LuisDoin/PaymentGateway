@@ -14,7 +14,7 @@ namespace TransactionsApi.Extensions
 
                 try
                 {
-                    databaseService.CreateDatabase("TransactionsDB");
+                    databaseService.CreateDatabase("PaymentsDb");
 
                     migrationService.ListMigrations();
                     migrationService.MigrateUp();
