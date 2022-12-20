@@ -1,11 +1,12 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Options;
+
+using PaymentProcessor.Config;
+using PaymentProcessor.Mappers.Interfaces;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils;
-using PaymentProcessor.Config;
-using PaymentProcessor.Mappers.Interfaces;
-using PaymentProcessor.Services.Interfaces;
+using ServiceIntegrationLibrary.Utils.Interfaces;
 using System.Text.Json;
 
 namespace PaymentProcessor.Consumers

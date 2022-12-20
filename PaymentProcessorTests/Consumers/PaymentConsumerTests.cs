@@ -3,8 +3,6 @@ using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Model;
-using Model.ModelValidationServices;
 using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -12,7 +10,9 @@ using PaymentProcessor.Config;
 using PaymentProcessor.Consumers;
 using PaymentProcessor.DTOs;
 using PaymentProcessor.Mappers.Interfaces;
-using PaymentProcessor.Services.Interfaces;
+using ServiceIntegrationLibrary.Models;
+using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils.Interfaces;
 using System.Text.Json;
 
 namespace PaymentProcessorUnitTests.Consumers

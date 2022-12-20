@@ -3,9 +3,9 @@ using PaymentProcessor.Config;
 using PaymentProcessor.Consumers;
 using PaymentProcessor.Mappers;
 using PaymentProcessor.Mappers.Interfaces;
-using PaymentProcessor.Services;
-using PaymentProcessor.Services.Interfaces;
 using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils;
+using ServiceIntegrationLibrary.Utils.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

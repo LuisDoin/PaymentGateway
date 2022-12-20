@@ -1,6 +1,6 @@
-﻿using Model;
-using Model.ModelValidationServices;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using ServiceIntegrationLibrary.Models;
+using ServiceIntegrationLibrary.ModelValidationServices;
 
 namespace ServicesIntegrationLibrary.UnitTests.ValidationServices
 {
@@ -24,7 +24,7 @@ namespace ServicesIntegrationLibrary.UnitTests.ValidationServices
         [TestCase("0000000000000000000000000", 1, "01/2030", "000", "USD", 1, "Invalid credit card number")] //Passing the sum check but not passing the maxLenth check
         [TestCase("111111111111", 1, "01/2030", "000", "USD", 1, "Invalid credit card number")] //Passing the length check but not passing sum check
         //Invalid merchant name only
-        [TestCase("4324781866717289", 0, "01/2030", "000", "USD", 1, "Invalid merchant id")] //Invalid merchant id
+        [TestCase("4324781866717289", 0, "01/2030", "000", "USD", 1, "Invalid merchantId")] //Invalid merchantId
         //Invalid expiration date only
         [TestCase("4324781866717289", 1, "", "000", "USD", 1, "Invalid expiration date")] //Empty expiration date
         [TestCase("4324781866717289", 1, "00/2030", "000", "USD", 1, "Invalid expiration date")] //Incorrect month

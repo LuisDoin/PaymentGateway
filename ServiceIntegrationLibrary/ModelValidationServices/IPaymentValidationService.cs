@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ServiceIntegrationLibrary.Models;
 
-namespace Model.ModelValidationServices
+namespace ServiceIntegrationLibrary.ModelValidationServices
 {
     public interface IPaymentValidationService
     {

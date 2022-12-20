@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PaymentGateway\PaymentGateway.csproj" />
+    <ProjectReference Include="..\ServiceIntegrationLibrary\ServiceIntegrationLibrary.csproj" />
   </ItemGroup>
 
 </Project>

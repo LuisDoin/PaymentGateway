@@ -1,8 +1,8 @@
-﻿using ServiceIntegrationLibrary.Utils;
+﻿using Model.Utils;
+using Newtonsoft.Json;
 using System;
-using System.Text.Json.Serialization;
 
-namespace ServiceIntegrationLibrary.Models
+namespace Model
 {
     public class PaymentDetails
     {
@@ -16,7 +16,6 @@ namespace ServiceIntegrationLibrary.Models
             Amount = amount;
         }
 
-        [JsonIgnore]
         public Guid PaymentId { get; set; }
         public long MerchantId { get; set; }
         public string CreditCardNumber { get; set; }
@@ -24,7 +23,6 @@ namespace ServiceIntegrationLibrary.Models
         public string Cvv { get; set; }
         public string Currency { get; set; }
         public decimal Amount { get; set; }
-        [JsonIgnore]
         public PaymentStatus Status { get; set; }
     }
 }

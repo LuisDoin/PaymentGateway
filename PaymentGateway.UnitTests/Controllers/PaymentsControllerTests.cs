@@ -3,12 +3,12 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Model;
-using Model.ModelValidationServices;
 using Moq;
 using NUnit.Framework;
 using PaymentGateway.Controllers;
 using PaymentProcessor.Config;
+using ServiceIntegrationLibrary.Models;
+using ServiceIntegrationLibrary.ModelValidationServices;
 
 namespace PaymentGateway.UnitTests.Controllers
 {
