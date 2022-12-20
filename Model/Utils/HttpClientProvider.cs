@@ -1,8 +1,10 @@
-﻿using PaymentProcessor.Services.Interfaces;
+﻿using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace PaymentProcessor.Services
+namespace ServiceIntegrationLibrary.Utils
 {
     //This class provide us greater freedom during testing.
     public class HttpClientProvider : IHttpClientProvider

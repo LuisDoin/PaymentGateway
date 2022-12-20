@@ -1,6 +1,7 @@
-﻿using PaymentProcessor.Services.Interfaces;
+﻿using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Net.Http;
 
-namespace PaymentProcessor.Services
+namespace ServiceIntegrationLibrary.Utils
 {
     //This class provide us greater freedom during testing.
     public class HttpResponseMessageProvider : IHttpResponseMessageProvider
