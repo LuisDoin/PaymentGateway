@@ -24,14 +24,21 @@ builder.Services.AddLogging(c => c.AddFluentMigratorConsole())
 builder.Services.AddMassTransit(config =>
 {
     config.AddConsumer<SuccessfulTransactionsConsumer>();
+    config.AddConsumer<UnsuccessfulTransactionsConsumer>();
 
     config.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.Host(builder.Configuration.GetSection("RabbitMQ").GetSection("Uri").Value);
 
-        cfg.ReceiveEndpoint(builder.Configuration.GetSection("RabbitMQ").GetSection("CompletedTransactionsQueue").Value, c =>
+        cfg.ReceiveEndpoint(builder.Configuration.GetSection("RabbitMQ").GetSection("SuccessfulTransactionsQueue").Value, c =>
         {
             c.ConfigureConsumer<SuccessfulTransactionsConsumer>(ctx);
+            c.UseMessageRetry(r => r.Immediate(5));
+        });
+
+        cfg.ReceiveEndpoint(builder.Configuration.GetSection("RabbitMQ").GetSection("UnsuccessfulTransactionsQueue").Value, c =>
+        {
+            c.ConfigureConsumer<UnsuccessfulTransactionsConsumer>(ctx);
             c.UseMessageRetry(r => r.Immediate(5));
         });
     });
@@ -43,10 +50,9 @@ builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IHttpClientProvider, HttpClientProvider>();
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
-builder.Services.AddScoped<DbSession>();
 
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
-builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("PaymentGateway"));
+builder.Services.Configure<PaymentGatewaySettings>(builder.Configuration.GetSection("PaymentGateway"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

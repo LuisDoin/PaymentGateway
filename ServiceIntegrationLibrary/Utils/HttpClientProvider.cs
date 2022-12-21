@@ -1,7 +1,4 @@
 ﻿using ServiceIntegrationLibrary.Utils.Interfaces;
-using System.Net.Http;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ServiceIntegrationLibrary.Utils
 {
@@ -17,9 +14,9 @@ namespace ServiceIntegrationLibrary.Utils
             _httpClient = _httpClientFactory.CreateClient();
         }
 
-        public async Task<IHttpResponseMessageProvider> PostAsync(string? requestUri, string content)
+        public async Task<IHttpResponseMessageProvider> PostAsync(string? requestUri, StringContent content)
         {
-            return new HttpResponseMessageProvider(await _httpClient.PostAsync(requestUri, new StringContent(content, Encoding.UTF8, Application.Json)));
+            return new HttpResponseMessageProvider(await _httpClient.PostAsync(requestUri, content));
         }
     }
 }

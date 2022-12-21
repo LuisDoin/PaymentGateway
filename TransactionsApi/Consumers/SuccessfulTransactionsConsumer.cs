@@ -20,6 +20,8 @@ namespace TransactionsApi.Consumers
         {
             try
             {
+                _logger.LogInformation($"Processing successful payment {context.Message.PaymentId}");
+
                 await _paymentServices.ProcessCompletedTransaction(context.Message);
             }
             catch (Exception ex)

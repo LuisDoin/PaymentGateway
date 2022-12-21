@@ -7,7 +7,9 @@ using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils;
 using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Text;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Consumers
 {
@@ -47,7 +49,7 @@ namespace PaymentProcessor.Consumers
 
                 var ckoPaymentInfoDTO = _ckoMapper.ToDto(message);
                 var paymentJson = JsonSerializer.Serialize(ckoPaymentInfoDTO);
-                using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, paymentJson);
+                using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, new StringContent(paymentJson, Encoding.UTF8, Application.Json));
 
                 httpResponseMessage.EnsureSuccessStatusCode();
 

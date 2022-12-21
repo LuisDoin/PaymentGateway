@@ -13,7 +13,9 @@ using PaymentProcessor.Mappers.Interfaces;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Text;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessorUnitTests.Consumers
 {
@@ -60,7 +62,7 @@ namespace PaymentProcessorUnitTests.Consumers
             CKOBankDtotJson = JsonSerializer.Serialize(_ckoPaymentInfoDTO);
 
             _ckoMapperMock.Setup(x => x.ToDto(It.IsAny<PaymentDetails>())).Returns(_ckoPaymentInfoDTO);
-            _httpClientProviderMock.Setup(x => x.PostAsync(_cKOBankSettings.Uri, CKOBankDtotJson)).ReturnsAsync(_httpResponseMessageProviderMock.Object);
+            _httpClientProviderMock.Setup(x => x.PostAsync(_cKOBankSettings.Uri, new StringContent(CKOBankDtotJson, Encoding.UTF8, Application.Json))).ReturnsAsync(_httpResponseMessageProviderMock.Object);
 
             //Configuring dependencies.
             harness = new InMemoryTestHarness();
@@ -84,7 +86,7 @@ namespace PaymentProcessorUnitTests.Consumers
                 await harness.InputQueueSendEndpoint.Send<PaymentDetails>(_paymentDetails);
 
                 Assert.That(_paymentConsumer.Consumed.Select<PaymentDetails>().Any(), Is.True);
-                _httpClientProviderMock.Verify(x => x.PostAsync(_cKOBankSettings.Uri, CKOBankDtotJson), Times.Once);
+                _httpClientProviderMock.Verify(x => x.PostAsync(_cKOBankSettings.Uri, new StringContent(CKOBankDtotJson, Encoding.UTF8, Application.Json)), Times.Once);
                 _httpResponseMessageProviderMock.Verify(x => x.EnsureSuccessStatusCode(), Times.Once);
                 Assert.That(harness.Sent.Select<PaymentDetails>().Any(), Is.True);
             }
