@@ -5,8 +5,8 @@ namespace TransactionsApi.Data.Repositories
 {
     public interface IPaymentsRepository
     {
-        public Task<Payment> Get(string transactionId);
+        public Task<ProcessedPayment> Get(string transactionId);
 
-        public Task Post(Payment paymentDetails);
+        public Task Post(ProcessedPayment paymentDetails);
     }
 }

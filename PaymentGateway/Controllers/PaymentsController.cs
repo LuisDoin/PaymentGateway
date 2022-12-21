@@ -48,7 +48,7 @@ namespace PaymentGateway.Controllers
         /// <response code="200"></response>
         [HttpPost("payment")]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
-        public async Task<IActionResult> Payment([FromBody] PaymentDetails paymentDetails)
+        public async Task<IActionResult> Payment([FromBody] IncomingPayment paymentDetails)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace PaymentGateway.Controllers
 
         [HttpPost("paymentResponse")]
         //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
-        public async Task PaymentResponse([FromBody] PaymentDetails paymentDetails)
+        public async Task PaymentResponse([FromBody] IncomingPayment paymentDetails)
         {
             var isSuccessfulPayment = paymentDetails.Status== PaymentStatus.Successful;
             var message = isSuccessfulPayment ? "Pagamento aprovado! :D" :
@@ -104,7 +104,7 @@ namespace PaymentGateway.Controllers
                 string url = builder.ToString();
 
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
-                var payment = await httpResponseMessage.Content.ReadAsAsync<Payment>();
+                var payment = await httpResponseMessage.Content.ReadAsAsync<ProcessedPayment>();
 
                 return payment != null ? Ok(payment) : NotFound();
             }

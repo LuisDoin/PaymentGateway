@@ -8,7 +8,7 @@ namespace ServiceIntegrationLibrary.ModelValidationServices
 {
     public class PaymentValidationService : IPaymentValidationService
     {
-        public void ValidatePayment(PaymentDetails paymentDetails)
+        public void ValidatePayment(IncomingPayment paymentDetails)
         {
             if (paymentDetails == null) throw new ArgumentException("PurchaseDetails cannot be null.");
 

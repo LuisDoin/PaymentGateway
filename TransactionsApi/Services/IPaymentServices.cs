@@ -4,6 +4,6 @@ namespace TransactionsApi.Services
 {
     public interface IPaymentServices
     {
-        public Task ProcessCompletedTransaction(PaymentDetails paymentDetails);
+        public Task ProcessCompletedTransaction(IncomingPayment IncomingPayment);
     }
 }

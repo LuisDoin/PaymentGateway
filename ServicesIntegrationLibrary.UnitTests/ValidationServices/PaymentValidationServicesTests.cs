@@ -51,7 +51,7 @@ namespace ServicesIntegrationLibrary.UnitTests.ValidationServices
         [TestCase("4324781866717289", 1, "01/2030", "000", "USD", -1, "Invalid amount")] //Negative amount
         public void ValidatePayment_InvalidParameters_ThrowsArgumentException(string creditCardNumber, long merchantId, string expirationDate, string cvv, string currency, decimal amount, string expectedErrorMessage)
         {
-            Assert.That(() => _paymentValidationService.ValidatePayment(new PaymentDetails(creditCardNumber, merchantId, expirationDate, cvv, currency, amount)),
+            Assert.That(() => _paymentValidationService.ValidatePayment(new IncomingPayment(creditCardNumber, merchantId, expirationDate, cvv, currency, amount)),
                 Throws.TypeOf<ArgumentException>()
                     .With.Message.Contains(expectedErrorMessage));
         }
@@ -59,7 +59,7 @@ namespace ServicesIntegrationLibrary.UnitTests.ValidationServices
         [TestCase("4324781866717289", 1, "01/2030", "000", "USD", 1)]
         public void ValidatePayment_ValidParameters_DoesNotThrowException(string creditCardNumber, long merchantId, string expirationDate, string cvv, string currency, decimal amount)
         {
-            Assert.DoesNotThrow(() => _paymentValidationService.ValidatePayment(new PaymentDetails(creditCardNumber, merchantId, expirationDate, cvv, currency, amount)));
+            Assert.DoesNotThrow(() => _paymentValidationService.ValidatePayment(new IncomingPayment(creditCardNumber, merchantId, expirationDate, cvv, currency, amount)));
         }
     }
 }

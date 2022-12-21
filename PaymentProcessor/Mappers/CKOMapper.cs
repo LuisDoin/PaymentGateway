@@ -6,16 +6,16 @@ namespace PaymentProcessor.Mappers
 {
     public class CKOMapper : ICKOMapper
     {
-        public CKOPaymentInfoDTO ToDto(PaymentDetails paymentDetails)
+        public CKOPaymentInfoDTO ToDto(IncomingPayment incomingPayment)
         {
             var ckoPaymentInfoDTO = new CKOPaymentInfoDTO
             {
-                PaymentId = paymentDetails.PaymentId,
-                CreditCardNumber = paymentDetails.CreditCardNumber,
-                ExpirationDate = paymentDetails.ExpirationDate,
-                Cvv = paymentDetails.Cvv,
-                Currency = paymentDetails.Currency,
-                Amount = paymentDetails.Amount,
+                PaymentId = incomingPayment.PaymentId,
+                CreditCardNumber = incomingPayment.CreditCardNumber,
+                ExpirationDate = incomingPayment.ExpirationDate,
+                Cvv = incomingPayment.Cvv,
+                Currency = incomingPayment.Currency,
+                Amount = incomingPayment.Amount,
             };
 
             return ckoPaymentInfoDTO;

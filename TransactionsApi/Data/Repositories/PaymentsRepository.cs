@@ -18,15 +18,16 @@ namespace TransactionsApi.Data.Repositories
             _dbConnection = dapperContext.CreateConnection();
         }
 
-        public async Task<Payment> Get(string paymentId)
+        public async Task<ProcessedPayment> Get(string paymentId)
         {
-            return await _dbConnection.QueryFirstOrDefaultAsync<Payment>(SqlQueries.GetTransaction, new { paymentId });
+            return await _dbConnection.QueryFirstOrDefaultAsync<ProcessedPayment>(SqlQueries.GetTransaction, new { paymentId });
         }
 
-        public async Task Post(Payment payment)
+        public async Task Post(ProcessedPayment payment)
         {
-            payment.CreditCard = MaskCreditCardNumber(payment.CreditCard);
-            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { payment.PaymentId, payment.MerchantId, payment.CreditCard, payment.ExpirationDate, payment.Cvv, payment.Currency, payment.Amount, payment.CreationDate, Status = payment.Status.ToString() });
+            var originalPayment = payment.IncomingPayment;
+            payment.IncomingPayment.CreditCardNumber = MaskCreditCardNumber(payment.IncomingPayment.CreditCardNumber);
+            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { originalPayment.PaymentId, originalPayment.MerchantId, originalPayment.CreditCardNumber, originalPayment.ExpirationDate, originalPayment.Cvv, originalPayment.Currency, originalPayment.Amount, payment.ProcessedAt, Status = originalPayment.Status.ToString() });
         }
 
         private string MaskCreditCardNumber(string creditCardNumber)

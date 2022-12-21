@@ -25,16 +25,16 @@ namespace TransactionsApi.Services
             _paymentGatewaySettings = paymentGatewayOptions.Value;
         }
 
-        public async Task ProcessCompletedTransaction(PaymentDetails paymentDetails)
+        public async Task ProcessCompletedTransaction(IncomingPayment paymentDetails)
         {
             _logger.LogInformation($"Saving payment {paymentDetails.PaymentId} to db");
 
-            await _paymentRepository.Post(new Payment(paymentDetails));
+            await _paymentRepository.Post(new ProcessedPayment(paymentDetails));
 
             _logger.LogInformation($"Sending response to PaymentGateway for payment {paymentDetails.PaymentId}");
 
             var paymentJson = JsonSerializer.Serialize(paymentDetails);
-            using var httpResponseMessage = await _httpClientProvider.PostAsync(_paymentGatewaySettings.Uri, new StringContent(paymentJson, Encoding.UTF8, Application.Json));
+            using var httpResponseMessage = await _httpClientProvider.PostAsync(_paymentGatewaySettings.Uri, paymentJson);
 
             httpResponseMessage.EnsureSuccessStatusCode();
         }

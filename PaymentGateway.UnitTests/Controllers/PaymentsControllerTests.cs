@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using PaymentGateway.Config;
 using PaymentGateway.Controllers;
 using PaymentProcessor.Config;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils.Interfaces;
 
 namespace PaymentGateway.UnitTests.Controllers
 {
@@ -16,14 +18,15 @@ namespace PaymentGateway.UnitTests.Controllers
     class PaymentsControllerTests
     {
         private Fixture _fixture;
+        private Mock<IHttpClientProvider> _httpClientProvider;
         private Mock<IPaymentValidationService> _paymentValidationServiceMock;
         private Mock<ILogger<PaymentsController>> _loggerMock;
         private Mock<ISendEndpointProvider> _sendEndpointProviderMock;
         private Mock<ISendEndpoint> _sendEndpointMock;
         private PaymentsController _paymentsController;
-        private PaymentDetails _paymentDetails;
+        private IncomingPayment _paymentDetails;
         private RabbitMQSettings _rabbitMQSettings;
-
+        private TransactionsApiSettings _transactionsApiSettings;
 
         [SetUp]
         public void SetUp()
@@ -33,13 +36,18 @@ namespace PaymentGateway.UnitTests.Controllers
             _loggerMock = new Mock<ILogger<PaymentsController>>();
             _sendEndpointProviderMock = new Mock<ISendEndpointProvider>();
             _sendEndpointMock = new Mock<ISendEndpoint>();
+            _httpClientProvider = new Mock<IHttpClientProvider>();
             _rabbitMQSettings = new RabbitMQSettings()
             {
                 Uri = "amqp://guest:guest@localhost:5672",
                 PendingTransactionsQueue = "pending-transactions"
             };
-            _paymentsController = new PaymentsController(_paymentValidationServiceMock.Object, _sendEndpointProviderMock.Object, _loggerMock.Object, Options.Create(_rabbitMQSettings));
-            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
+            _transactionsApiSettings = new TransactionsApiSettings()
+            {
+                Uri = "https://localhost:44370/TransactionsApi/Payments/payment"
+            };
+            _paymentsController = new PaymentsController(_paymentValidationServiceMock.Object, _sendEndpointProviderMock.Object, _loggerMock.Object, Options.Create(_rabbitMQSettings), Options.Create(_transactionsApiSettings), _httpClientProvider.Object);
+            _paymentDetails = new IncomingPayment(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
             _sendEndpointProviderMock.Setup(x => x.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.PendingTransactionsQueue}"))).ReturnsAsync(_sendEndpointMock.Object);
         }
 
@@ -61,7 +69,7 @@ namespace PaymentGateway.UnitTests.Controllers
         [Test]
         public async Task Payment_ValidationFail_ReturnBadRequest()
         {
-            _paymentValidationServiceMock.Setup(x => x.ValidatePayment(It.IsAny<PaymentDetails>())).Throws<ArgumentException>();
+            _paymentValidationServiceMock.Setup(x => x.ValidatePayment(It.IsAny<IncomingPayment>())).Throws<ArgumentException>();
 
             var result = await _paymentsController.Payment(_paymentDetails);
             var badRequestResult = result as BadRequestObjectResult;

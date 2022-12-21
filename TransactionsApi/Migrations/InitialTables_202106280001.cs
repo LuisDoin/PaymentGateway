@@ -14,12 +14,12 @@ namespace TransactionsApi.Migrations
             Create.Table("Payments")
                 .WithColumn("paymentId").AsGuid().NotNullable().PrimaryKey()
                 .WithColumn("merchantId").AsInt64().NotNullable()
-                .WithColumn("creditCard").AsString(40).NotNullable()
+                .WithColumn("creditCardNumber").AsString(40).NotNullable()
                 .WithColumn("expirationDate").AsString(10).NotNullable()
                 .WithColumn("cvv").AsString(10).NotNullable()
                 .WithColumn("currency").AsString(10).NotNullable()
                 .WithColumn("amount").AsDecimal().NotNullable()
-                .WithColumn("creationDate").AsDateTime().NotNullable()
+                .WithColumn("processedAt").AsDateTime().NotNullable()
                 .WithColumn("status").AsString(20).NotNullable();
         }
     }

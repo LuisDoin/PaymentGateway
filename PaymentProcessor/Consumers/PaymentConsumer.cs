@@ -13,7 +13,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Consumers
 {
-    public class PaymentConsumer : IConsumer<PaymentDetails>
+    public class PaymentConsumer : IConsumer<IncomingPayment>
     {
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly IPaymentValidationService _paymentValidationService;
@@ -37,7 +37,7 @@ namespace PaymentProcessor.Consumers
             _rabbitMQSettings = rabbitMQOptions.Value;
         }
 
-        public async Task Consume(ConsumeContext<PaymentDetails> context)
+        public async Task Consume(ConsumeContext<IncomingPayment> context)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace PaymentProcessor.Consumers
 
                 _logger.LogInformation($"Sending payment {context.Message.PaymentId} to CKOBranSimulator");
 
-                using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, new StringContent(paymentJson, Encoding.UTF8, Application.Json));
+                using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, paymentJson);
 
                 httpResponseMessage.EnsureSuccessStatusCode();
 
