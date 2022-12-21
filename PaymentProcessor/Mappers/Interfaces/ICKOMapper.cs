@@ -5,6 +5,6 @@ namespace PaymentProcessor.Mappers.Interfaces
 {
     public interface ICKOMapper
     {
-        public CKOPaymentInfoDTO ToDto(IncomingPayment IncomingPayment);
+        public CKOPaymentInfoDTO ToDto(PaymentDetails IncomingPayment);
     }
 }

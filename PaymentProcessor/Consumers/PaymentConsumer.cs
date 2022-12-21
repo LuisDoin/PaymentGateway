@@ -13,7 +13,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessor.Consumers
 {
-    public class PaymentConsumer : IConsumer<IncomingPayment>
+    public class PaymentConsumer : IConsumer<PaymentDetails>
     {
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly IPaymentValidationService _paymentValidationService;
@@ -37,7 +37,7 @@ namespace PaymentProcessor.Consumers
             _rabbitMQSettings = rabbitMQOptions.Value;
         }
 
-        public async Task Consume(ConsumeContext<IncomingPayment> context)
+        public async Task Consume(ConsumeContext<PaymentDetails> context)
         {
             try
             {

@@ -10,14 +10,14 @@ namespace PaymentProcessorUnitTests.Mappers
     {
         private Fixture _fixture;
         private CKOMapper _ckoMapper;
-        private IncomingPayment _paymentDetails;
+        private PaymentDetails _paymentDetails;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _ckoMapper = new CKOMapper();
-            _paymentDetails = new IncomingPayment(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
+            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
         }
 
         [Test]

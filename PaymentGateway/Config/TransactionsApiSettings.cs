@@ -4,6 +4,7 @@
     {
         public string GetPaymentUri { get; set; }
         public string GetPaymentsUri { get; set; }
-        
+        public string PostPaymentUri { get; set; }
+
     }
 }

@@ -6,7 +6,7 @@ namespace PaymentProcessor.Mappers
 {
     public class CKOMapper : ICKOMapper
     {
-        public CKOPaymentInfoDTO ToDto(IncomingPayment incomingPayment)
+        public CKOPaymentInfoDTO ToDto(PaymentDetails incomingPayment)
         {
             var ckoPaymentInfoDTO = new CKOPaymentInfoDTO
             {

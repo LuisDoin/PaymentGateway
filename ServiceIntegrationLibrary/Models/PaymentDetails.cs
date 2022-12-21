@@ -4,9 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace ServiceIntegrationLibrary.Models
 {
-    public class IncomingPayment
+    public class PaymentDetails
     {
-        public IncomingPayment(string creditCardNumber, long merchantId, string expirationDate, string cvv, string currency, decimal amount)
+        public PaymentDetails()
+        {
+        }
+
+        public PaymentDetails(string creditCardNumber, long merchantId, string expirationDate, string cvv, string currency, decimal amount)
         {
             CreditCardNumber = creditCardNumber;
             MerchantId = merchantId;
@@ -25,5 +29,6 @@ namespace ServiceIntegrationLibrary.Models
         public decimal Amount { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PaymentStatus Status { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

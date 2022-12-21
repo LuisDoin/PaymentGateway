@@ -49,7 +49,7 @@ namespace CKOBankSimulator.Controllers
                 //Here, we have a hole in our system. If the server crashes after processing the payment but before saving it to the cache,
                 //this request will be resent, and this payment will be processed twice. A more involved design is needed to fix this, such
                 //as using a state machine or processing both operations separately with idempotent retry mechanisms. Since the purpose
-                //of the CKOBankSimulator is to allow us to test our PaymentGatewayin, which is the focus of this challenge,
+                //of the CKOBankSimulator is to allow us to test our PaymentGateway, which is the focus of this challenge,
                 //we will leave the implementation of the CKOBankSimulator as is.
 
                 await _cache.SetAsync(paymentId, "Payment successfully processed");

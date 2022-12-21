@@ -4,7 +4,7 @@ using TransactionsApi.Services;
 
 namespace TransactionsApi.Consumers
 {
-    public class SuccessfulTransactionsConsumer : IConsumer<IncomingPayment>
+    public class SuccessfulTransactionsConsumer : IConsumer<PaymentDetails>
     {
         private readonly ILogger<SuccessfulTransactionsConsumer> _logger;
         private readonly IPaymentServices _paymentServices;
@@ -14,7 +14,7 @@ namespace TransactionsApi.Consumers
             _logger = logger;
             _paymentServices = paymentServices;
         }
-        public async Task Consume(ConsumeContext<IncomingPayment> context)
+        public async Task Consume(ConsumeContext<PaymentDetails> context)
         {
             try
             {

@@ -1,9 +1,7 @@
 ﻿using Dapper;
 using ServiceIntegrationLibrary.Models;
 using System.Data;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Transactions;
 using TransactionsApi.Context;
 using TransactionsApi.Data.Utils;
 
@@ -18,23 +16,34 @@ namespace TransactionsApi.Data.Repositories
             _dbConnection = dapperContext.CreateConnection();
         }
 
-        public async Task<ProcessedPayment> Get(string paymentId)
+        public async Task<PaymentDetails> Get(string paymentId)
         {
-            return await _dbConnection.QueryFirstOrDefaultAsync<ProcessedPayment>(SqlQueries.GetTransaction, new { paymentId });
+            return await _dbConnection.QueryFirstOrDefaultAsync<PaymentDetails>(SqlQueries.GetTransaction, new { paymentId });
         }
 
-        public async Task<IEnumerable<ProcessedPayment>> Get(long merchantId, DateTime from, DateTime? to = null)
+        public async Task<IEnumerable<PaymentDetails>> Get(long merchantId, DateTime from, DateTime? to = null)
         {
             if (to == null)
                 to = DateTime.UtcNow;
 
-            return await _dbConnection.QueryAsync<ProcessedPayment>(SqlQueries.GetTransactionsFromMerchant, new { merchantId, from, to });
+            return await _dbConnection.QueryAsync<PaymentDetails>(SqlQueries.GetTransactionsFromMerchant, new { merchantId, from, to });
         }
 
-        public async Task Post(ProcessedPayment payment)
+        public async Task Post(PaymentDetails payment)
         {
             payment.CreditCardNumber = MaskCreditCardNumber(payment.CreditCardNumber);
-            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { payment.PaymentId, payment.MerchantId, payment.CreditCardNumber, payment.ExpirationDate, payment.Cvv, payment.Currency, payment.Amount, payment.ProcessedAt, Status = payment.Status.ToString() });
+            payment.Cvv = MaskCvv(payment.Cvv);
+            payment.CreatedAt = DateTime.UtcNow;
+            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { payment.PaymentId, payment.MerchantId, payment.CreditCardNumber, payment.ExpirationDate, payment.Cvv, payment.Currency, payment.Amount, payment.CreatedAt, Status = payment.Status.ToString() });
+        }
+
+        public async Task UpdateIfExistsElseInsert(PaymentDetails payment)
+        {
+            //We plan to add encryption on the db level instead of saving the credit card information like this.
+            payment.CreditCardNumber = MaskCreditCardNumber(payment.CreditCardNumber);
+            payment.Cvv = MaskCvv(payment.Cvv);
+            payment.CreatedAt = DateTime.UtcNow;
+            await _dbConnection.ExecuteAsync(SqlQueries.UpdateIfExistsElseInsert, new { payment.PaymentId, payment.MerchantId, payment.CreditCardNumber, payment.ExpirationDate, payment.Cvv, payment.Currency, payment.Amount, payment.CreatedAt, Status = payment.Status.ToString() });
         }
 
         private string MaskCreditCardNumber(string creditCardNumber)
@@ -44,6 +53,11 @@ namespace TransactionsApi.Data.Repositories
             var maskedString = string.Concat(requiredMask, lastDigits);
             var maskedCardNumberWithSpaces = Regex.Replace(maskedString, ".{4}", "$0 ");
             return maskedCardNumberWithSpaces;
+        }
+
+        private string MaskCvv(string cvv)
+        {
+            return new String('*', cvv.Length);
         }
     }
 }

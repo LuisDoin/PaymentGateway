@@ -56,7 +56,7 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddSwaggerGen(s =>
 {
-    s.SwaggerDoc("v1", new OpenApiInfo { Title = "BankRestApi", Version = "v1" });
+    s.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment Gateway", Version = "v1" });
 
     s.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {

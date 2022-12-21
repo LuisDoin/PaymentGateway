@@ -19,7 +19,7 @@ namespace TransactionsApi.Migrations
                 .WithColumn("cvv").AsString(10).NotNullable()
                 .WithColumn("currency").AsString(10).NotNullable()
                 .WithColumn("amount").AsDecimal().NotNullable()
-                .WithColumn("processedAt").AsDateTime().NotNullable()
+                .WithColumn("´createdAt").AsDateTime().NotNullable()
                 .WithColumn("status").AsString(20).NotNullable();
         }
     }

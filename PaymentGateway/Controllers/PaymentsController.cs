@@ -18,6 +18,8 @@ using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using PaymentGateway.Services;
+using System.Security.Policy;
+using System.Text.Json;
 
 namespace PaymentGateway.Controllers
 {
@@ -48,7 +50,6 @@ namespace PaymentGateway.Controllers
         }
 
         /// <summary>
-        /// Performs a purchase.  
         /// </summary>
         /// <returns> </returns>
         /// <remarks>
@@ -57,7 +58,7 @@ namespace PaymentGateway.Controllers
         /// <response code="200"></response>
         [HttpPost("payment")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1")]
-        public async Task<IActionResult> Payment([Microsoft.AspNetCore.Mvc.FromBody] IncomingPayment paymentDetails)
+        public async Task<IActionResult> Payment([Microsoft.AspNetCore.Mvc.FromBody] PaymentDetails paymentDetails, int delayInSeconds = 0)
         {
             try
             {
@@ -65,6 +66,11 @@ namespace PaymentGateway.Controllers
                 paymentDetails.Status = PaymentStatus.Processing;
                 paymentDetails.MerchantId = CurrentUser.UserId;
                 paymentDetails.CreditCardNumber = Regex.Replace(paymentDetails.CreditCardNumber, "[- ]", String.Empty); //Remove spaces and hyphens
+
+                var paymentJson = JsonSerializer.Serialize(paymentDetails);
+                await _httpClientProvider.PostAsync(_transactionsApiSettings.PostPaymentUri, paymentJson);
+
+                Thread.Sleep(1000*delayInSeconds);
 
                 _logger.LogInformation($"Processing payment {paymentDetails}");
 
@@ -87,17 +93,6 @@ namespace PaymentGateway.Controllers
             }
         }
 
-        [HttpPost("paymentResponse")]
-        public async Task PaymentResponse([FromBody] IncomingPayment paymentDetails)
-        {
-            var isSuccessfulPayment = paymentDetails.Status == PaymentStatus.Successful;
-            var message = isSuccessfulPayment ? "Pagamento aprovado! :D" :
-                                                "Pagamento não aprovado :(";
-
-            //Send
-            //to UI;
-        }
-
         [HttpGet("payment")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1,Tier2" )]
         public async Task<IActionResult> Payment(string paymentId)
@@ -109,15 +104,16 @@ namespace PaymentGateway.Controllers
 
                 _logger.LogInformation($"Fetching payment {paymentId}");
 
-                var builder = new UriBuilder(_transactionsApiSettings.GetPaymentUri);
-                var query = HttpUtility.ParseQueryString(builder.Query);
-                query["paymentId"] = paymentId;
-                builder.Query = query.ToString();
-                string url = builder.ToString();
+                var parameters = new Dictionary<string, string>
+                {
+                    { "paymentId", paymentId },
+                };
+
+                string url = BuildUrlWithParameters(_transactionsApiSettings.GetPaymentUri, parameters);
 
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
                 
-                var payment = await httpResponseMessage.Content.ReadAsAsync<ProcessedPayment>();
+                var payment = await httpResponseMessage.Content.ReadAsAsync<PaymentDetails>();
                 return payment != null ? Ok(payment) : NotFound();
             }
             catch (Exception ex)
@@ -135,17 +131,19 @@ namespace PaymentGateway.Controllers
             {
                 _logger.LogInformation($"Fetching payments from merchant {merchantId}");
 
-                var builder = new UriBuilder(_transactionsApiSettings.GetPaymentsUri);
-                var query = HttpUtility.ParseQueryString(builder.Query);
-                query["merchantId"] = merchantId.ToString();
-                query["from"] = from.ToString();
-                if(to != null) query["to"] = to.ToString();
-                builder.Query = query.ToString();
-                string url = builder.ToString();
+                var parameters = new Dictionary<string, string>
+                {
+                    { "merchantId", merchantId.ToString() }, 
+                    { "from", from.ToString() },
+                };
+                if (to != null)
+                    parameters.Add("to", to.ToString());
+
+                string url = BuildUrlWithParameters(_transactionsApiSettings.GetPaymentsUri, parameters);
 
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
 
-                var payments = await httpResponseMessage.Content.ReadAsAsync<IEnumerable<ProcessedPayment>>();
+                var payments = await httpResponseMessage.Content.ReadAsAsync<IEnumerable<PaymentDetails>>();
                 return payments != null ? Ok(payments) : NotFound();
             }
             catch (Exception ex)
@@ -153,6 +151,16 @@ namespace PaymentGateway.Controllers
                 _logger.LogError(ex, $"Error while fetching payments from merchant {merchantId}");
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        private string BuildUrlWithParameters(string uri, Dictionary<string, string> parameters)
+        {
+            var builder = new UriBuilder(uri);
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            foreach(var entry in parameters)
+                query[entry.Key] = entry.Value;
+            builder.Query = query.ToString();
+            return builder.ToString();
         }
     }
 }

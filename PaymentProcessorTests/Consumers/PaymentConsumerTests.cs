@@ -30,7 +30,7 @@ namespace PaymentProcessorUnitTests.Consumers
         private CKOBankSettings _cKOBankSettings;
         private RabbitMQSettings _rabbitMQSettings;
         private IConsumerTestHarness<PaymentConsumer> _paymentConsumer;
-        private IncomingPayment _paymentDetails;
+        private PaymentDetails _paymentDetails;
         private CKOPaymentInfoDTO _ckoPaymentInfoDTO;
         private string CKOBankDtotJson;
 
@@ -54,11 +54,11 @@ namespace PaymentProcessorUnitTests.Consumers
                 CompletedTransactionsQueue = "complete-transactions"
             };
 
-            _paymentDetails = new IncomingPayment(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
+            _paymentDetails = new PaymentDetails(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());
             _ckoPaymentInfoDTO = new CKOPaymentInfoDTO();
             CKOBankDtotJson = JsonSerializer.Serialize(_ckoPaymentInfoDTO);
 
-            _ckoMapperMock.Setup(x => x.ToDto(It.IsAny<IncomingPayment>())).Returns(_ckoPaymentInfoDTO);
+            _ckoMapperMock.Setup(x => x.ToDto(It.IsAny<PaymentDetails>())).Returns(_ckoPaymentInfoDTO);
             _httpClientProviderMock.Setup(x => x.PostAsync(_cKOBankSettings.Uri, CKOBankDtotJson)).ReturnsAsync(_httpResponseMessageProviderMock.Object);
 
             //Configuring dependencies.
@@ -80,12 +80,12 @@ namespace PaymentProcessorUnitTests.Consumers
             await harness.Start();
             try
             {
-                await harness.InputQueueSendEndpoint.Send<IncomingPayment>(_paymentDetails);
+                await harness.InputQueueSendEndpoint.Send<PaymentDetails>(_paymentDetails);
 
-                Assert.That(_paymentConsumer.Consumed.Select<IncomingPayment>().Any(), Is.True);
+                Assert.That(_paymentConsumer.Consumed.Select<PaymentDetails>().Any(), Is.True);
                 _httpClientProviderMock.Verify(x => x.PostAsync(_cKOBankSettings.Uri, CKOBankDtotJson), Times.Once);
                 _httpResponseMessageProviderMock.Verify(x => x.EnsureSuccessStatusCode(), Times.Once);
-                Assert.That(harness.Sent.Select<IncomingPayment>().Any(), Is.True);
+                Assert.That(harness.Sent.Select<PaymentDetails>().Any(), Is.True);
             }
             finally
             {
