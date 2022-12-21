@@ -49,6 +49,9 @@ namespace PaymentProcessor.Consumers
 
                 var ckoPaymentInfoDTO = _ckoMapper.ToDto(message);
                 var paymentJson = JsonSerializer.Serialize(ckoPaymentInfoDTO);
+
+                _logger.LogInformation($"Sending payment {context.Message.PaymentId} to CKOBranSimulator");
+
                 using var httpResponseMessage = await _httpClientProvider.PostAsync(_cKOBankSettings.Uri, new StringContent(paymentJson, Encoding.UTF8, Application.Json));
 
                 httpResponseMessage.EnsureSuccessStatusCode();

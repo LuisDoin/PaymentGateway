@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using TransactionsApi.Config;
 using TransactionsApi.Data.Repositories;
-using TransactionsApi.Models;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace TransactionsApi.Services

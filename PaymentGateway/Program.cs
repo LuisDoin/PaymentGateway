@@ -1,15 +1,20 @@
 using MassTransit;
 using Microsoft.OpenApi.Models;
+using PaymentGateway.Config;
 using PaymentProcessor.Config;
 using ServiceIntegrationLibrary.ModelValidationServices;
+using ServiceIntegrationLibrary.Utils;
+using ServiceIntegrationLibrary.Utils.Interfaces;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<IPaymentValidationService, PaymentValidationService>();
+builder.Services.AddScoped<IPaymentValidationService, PaymentValidationService>();
+builder.Services.AddScoped<IHttpClientProvider, HttpClientProvider>();
 
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.Configure<TransactionsApiSettings>(builder.Configuration.GetSection("TransactionsApi"));
 
 builder.Services.AddMassTransit(config =>
 {
@@ -22,6 +27,7 @@ builder.Services.AddMassTransit(config =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
 builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo { Title = "PaymentGateway", Version = "v1" });

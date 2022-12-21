@@ -1,31 +1,41 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using PaymentGateway.Config;
 using PaymentProcessor.Config;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils;
+using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Text.RegularExpressions;
+using System.Web;
 
 namespace PaymentGateway.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("PaymentGateway/[controller]")]
     public class PaymentsController : Controller
     {
         private readonly IPaymentValidationService _paymentValidationService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly ILogger<PaymentsController> _logger;
+        private readonly IHttpClientProvider _httpClientProvider;
         private readonly RabbitMQSettings _rabbitMQSettings;
+        private readonly TransactionsApiSettings _transactionsApiSettings;
 
-        public PaymentsController(IPaymentValidationService paymentValidationService, 
-            ISendEndpointProvider sendEndpointProvider, 
-            ILogger<PaymentsController> logger, 
-            IOptions<RabbitMQSettings> options)
+        public PaymentsController(IPaymentValidationService paymentValidationService,
+            ISendEndpointProvider sendEndpointProvider,
+            ILogger<PaymentsController> logger,
+            IOptions<RabbitMQSettings> rabbitMQOptions,
+            IOptions<TransactionsApiSettings> transactionsApiOptions,
+            IHttpClientProvider httpClientProvider)
         {
             _paymentValidationService = paymentValidationService;
             _sendEndpointProvider = sendEndpointProvider;
             _logger = logger;
-            _rabbitMQSettings = options.Value;
+            _rabbitMQSettings = rabbitMQOptions.Value;
+            _transactionsApiSettings = transactionsApiOptions.Value;
+            _httpClientProvider = httpClientProvider;
         }
 
         /// <summary>
@@ -44,6 +54,7 @@ namespace PaymentGateway.Controllers
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
                 paymentDetails.Status = PaymentStatus.Processing;
+                paymentDetails.CreditCardNumber = Regex.Replace(paymentDetails.CreditCardNumber, "[- ]", String.Empty); //Remove spaces and hyphens
 
                 _logger.LogInformation($"Processing payment {paymentDetails}");
 
@@ -62,6 +73,44 @@ namespace PaymentGateway.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Payment {paymentDetails.PaymentId} returned an error");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("paymentResponse")]
+        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
+        public async Task PaymentResponse([FromBody] PaymentDetails paymentDetails)
+        {
+            var isSuccessfulPayment = paymentDetails.Status== PaymentStatus.Successful;
+            var message = isSuccessfulPayment ? "Pagamento aprovado! :D" :
+                                                "Pagamento não aprovado :(";
+
+            //Send
+            //to UI;
+        }
+
+        [HttpGet("payment")]
+        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
+        public async Task<IActionResult> Payment(string paymentId)
+        {
+            try
+            {
+                _logger.LogInformation($"Fetching payment {paymentId}");
+
+                var builder = new UriBuilder(_transactionsApiSettings.Uri);
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["paymentId"] = paymentId;
+                builder.Query = query.ToString();
+                string url = builder.ToString();
+
+                using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
+                var payment = await httpResponseMessage.Content.ReadAsAsync<Payment>();
+
+                return payment != null ? Ok(payment) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while fetching payment {paymentId}");
                 return StatusCode(500, ex.Message);
             }
         }

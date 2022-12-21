@@ -4,7 +4,7 @@
     {
         public static readonly string GetTransaction = @"SELECT *
                                                          FROM PaymentsDb.dbo.Payments 
-                                                         WHERE paymentId = @transactionId";
+                                                         WHERE paymentId = @paymentId";
 
         public static readonly string PostTransaction = @"INSERT INTO PaymentsDb.dbo.Payments
                                                           VALUES (@PaymentId, @MerchantId, @CreditCardNumber, @ExpirationDate, 

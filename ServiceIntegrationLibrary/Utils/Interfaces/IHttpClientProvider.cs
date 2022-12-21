@@ -6,5 +6,6 @@ namespace ServiceIntegrationLibrary.Utils.Interfaces
     public interface IHttpClientProvider
     {
         Task<IHttpResponseMessageProvider> PostAsync(string? requestUri, StringContent content);
+        Task<HttpResponseMessage> GetAsync(string? requestUri);
     }
 }

@@ -14,6 +14,11 @@ namespace ServiceIntegrationLibrary.Utils
             _httpClient = _httpClientFactory.CreateClient();
         }
 
+        public async Task<HttpResponseMessage> GetAsync(string? requestUri)
+        {
+            return await _httpClient.GetAsync(requestUri);
+        }
+
         public async Task<IHttpResponseMessageProvider> PostAsync(string? requestUri, StringContent content)
         {
             return new HttpResponseMessageProvider(await _httpClient.PostAsync(requestUri, content));
