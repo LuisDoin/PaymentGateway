@@ -2,6 +2,8 @@
 {
     public class TransactionsApiSettings
     {
-        public string Uri { get; set; }
+        public string GetPaymentUri { get; set; }
+        public string GetPaymentsUri { get; set; }
+        
     }
 }

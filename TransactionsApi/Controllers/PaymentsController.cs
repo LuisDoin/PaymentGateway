@@ -20,7 +20,6 @@ namespace TransactionsApi.Controllers
         /// </summary>
         /// <returns> </returns>
         /// <remarks>
-        /// Input Info: expirationDate must be in the format: mm/yyyy. List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD. Valid credit card and cvv for testing: 4324781866717289 and 000.
         /// </remarks>
         /// <response code="200"></response>
         [HttpGet("payment")]
@@ -37,6 +36,30 @@ namespace TransactionsApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error while fetching payment {paymentId}");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Performs a purchase.  
+        /// </summary>
+        /// <returns> </returns>
+        /// <remarks>
+        /// </remarks>
+        /// <response code="200"></response>
+        [HttpGet("payments")]
+        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
+        public async Task<IActionResult> Payments(long merchantId, DateTime from, DateTime? to = null)
+        {
+            try
+            {
+                var payments = await _paymentsRepository.Get(merchantId, from, to);
+
+                return payments != null ? Ok(payments) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while fetching payments from merchant {merchantId}");
                 return StatusCode(500, ex.Message);
             }
         }

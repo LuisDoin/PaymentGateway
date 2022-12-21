@@ -44,7 +44,8 @@ namespace PaymentGateway.UnitTests.Controllers
             };
             _transactionsApiSettings = new TransactionsApiSettings()
             {
-                Uri = "https://localhost:44370/TransactionsApi/Payments/payment"
+                GetPaymentUri = "https://localhost:44370/TransactionsApi/Payments/payment",
+                GetPaymentsUri = "https://localhost:44370/TransactionsApi/Payments/payments"
             };
             _paymentsController = new PaymentsController(_paymentValidationServiceMock.Object, _sendEndpointProviderMock.Object, _loggerMock.Object, Options.Create(_rabbitMQSettings), Options.Create(_transactionsApiSettings), _httpClientProvider.Object);
             _paymentDetails = new IncomingPayment(_fixture.Create<string>(), 1, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<decimal>());

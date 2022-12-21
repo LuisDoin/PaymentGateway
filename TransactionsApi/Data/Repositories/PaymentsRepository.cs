@@ -23,11 +23,18 @@ namespace TransactionsApi.Data.Repositories
             return await _dbConnection.QueryFirstOrDefaultAsync<ProcessedPayment>(SqlQueries.GetTransaction, new { paymentId });
         }
 
+        public async Task<IEnumerable<ProcessedPayment>> Get(long merchantId, DateTime from, DateTime? to = null)
+        {
+            if (to == null)
+                to = DateTime.UtcNow;
+
+            return await _dbConnection.QueryAsync<ProcessedPayment>(SqlQueries.GetTransactionsFromMerchant, new { merchantId, from, to });
+        }
+
         public async Task Post(ProcessedPayment payment)
         {
-            var originalPayment = payment.IncomingPayment;
-            payment.IncomingPayment.CreditCardNumber = MaskCreditCardNumber(payment.IncomingPayment.CreditCardNumber);
-            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { originalPayment.PaymentId, originalPayment.MerchantId, originalPayment.CreditCardNumber, originalPayment.ExpirationDate, originalPayment.Cvv, originalPayment.Currency, originalPayment.Amount, payment.ProcessedAt, Status = originalPayment.Status.ToString() });
+            payment.CreditCardNumber = MaskCreditCardNumber(payment.CreditCardNumber);
+            await _dbConnection.ExecuteAsync(SqlQueries.PostTransaction, new { payment.PaymentId, payment.MerchantId, payment.CreditCardNumber, payment.ExpirationDate, payment.Cvv, payment.Currency, payment.Amount, payment.ProcessedAt, Status = payment.Status.ToString() });
         }
 
         private string MaskCreditCardNumber(string creditCardNumber)

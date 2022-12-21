@@ -109,7 +109,7 @@ namespace PaymentGateway.Controllers
 
                 _logger.LogInformation($"Fetching payment {paymentId}");
 
-                var builder = new UriBuilder(_transactionsApiSettings.Uri);
+                var builder = new UriBuilder(_transactionsApiSettings.GetPaymentUri);
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 query["paymentId"] = paymentId;
                 builder.Query = query.ToString();
@@ -123,6 +123,34 @@ namespace PaymentGateway.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error while fetching payment {paymentId}");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("payments")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1,Tier2")]
+        public async Task<IActionResult> Payments(long merchantId, DateTime from, DateTime? to = null)
+        {
+            try
+            {
+                _logger.LogInformation($"Fetching payments from merchant {merchantId}");
+
+                var builder = new UriBuilder(_transactionsApiSettings.GetPaymentsUri);
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["merchantId"] = merchantId.ToString();
+                query["from"] = from.ToString();
+                if(to != null) query["to"] = to.ToString();
+                builder.Query = query.ToString();
+                string url = builder.ToString();
+
+                using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
+
+                var payments = await httpResponseMessage.Content.ReadAsAsync<IEnumerable<ProcessedPayment>>();
+                return payments != null ? Ok(payments) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while fetching payments from merchant {merchantId}");
                 return StatusCode(500, ex.Message);
             }
         }
