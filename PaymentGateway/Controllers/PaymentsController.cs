@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using PaymentGateway.Config;
 using PaymentProcessor.Config;
@@ -7,8 +8,16 @@ using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils;
 using ServiceIntegrationLibrary.Utils.Interfaces;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Http;
+using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
+using PaymentGateway.Services;
 
 namespace PaymentGateway.Controllers
 {
@@ -47,13 +56,14 @@ namespace PaymentGateway.Controllers
         /// </remarks>
         /// <response code="200"></response>
         [HttpPost("payment")]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
-        public async Task<IActionResult> Payment([FromBody] IncomingPayment paymentDetails)
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1")]
+        public async Task<IActionResult> Payment([Microsoft.AspNetCore.Mvc.FromBody] IncomingPayment paymentDetails)
         {
             try
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
                 paymentDetails.Status = PaymentStatus.Processing;
+                paymentDetails.MerchantId = CurrentUser.UserId;
                 paymentDetails.CreditCardNumber = Regex.Replace(paymentDetails.CreditCardNumber, "[- ]", String.Empty); //Remove spaces and hyphens
 
                 _logger.LogInformation($"Processing payment {paymentDetails}");
@@ -78,10 +88,9 @@ namespace PaymentGateway.Controllers
         }
 
         [HttpPost("paymentResponse")]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
         public async Task PaymentResponse([FromBody] IncomingPayment paymentDetails)
         {
-            var isSuccessfulPayment = paymentDetails.Status== PaymentStatus.Successful;
+            var isSuccessfulPayment = paymentDetails.Status == PaymentStatus.Successful;
             var message = isSuccessfulPayment ? "Pagamento aprovado! :D" :
                                                 "Pagamento não aprovado :(";
 
@@ -90,11 +99,14 @@ namespace PaymentGateway.Controllers
         }
 
         [HttpGet("payment")]
-        //[Authorize(AuthenticationSchemes = "Bearer", Roles = "tier2")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1,Tier2" )]
         public async Task<IActionResult> Payment(string paymentId)
         {
             try
             {
+                if(!Guid.TryParse(paymentId, out _))
+                    return BadRequest("PaymentId must be a GUID.");
+
                 _logger.LogInformation($"Fetching payment {paymentId}");
 
                 var builder = new UriBuilder(_transactionsApiSettings.Uri);
@@ -104,8 +116,8 @@ namespace PaymentGateway.Controllers
                 string url = builder.ToString();
 
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
+                
                 var payment = await httpResponseMessage.Content.ReadAsAsync<ProcessedPayment>();
-
                 return payment != null ? Ok(payment) : NotFound();
             }
             catch (Exception ex)

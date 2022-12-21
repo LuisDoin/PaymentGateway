@@ -13,9 +13,7 @@ using PaymentProcessor.Mappers.Interfaces;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils.Interfaces;
-using System.Text;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PaymentProcessorUnitTests.Consumers
 {
@@ -40,7 +38,6 @@ namespace PaymentProcessorUnitTests.Consumers
         public void SetUp()
         {
             _fixture = new Fixture();
-            harness = new InMemoryTestHarness();
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _httpResponseMessageProviderMock = new Mock<IHttpResponseMessageProvider>();
             _paymentValidationServiceMock = new Mock<IPaymentValidationService>();

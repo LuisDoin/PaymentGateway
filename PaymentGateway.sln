@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentProcessorUnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionsApi", "TransactionsApi\TransactionsApi.csproj", "{E6A1B56C-19B7-42A1-A5EA-D4329CF13DFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceIntegrationLibrary", "ServiceIntegrationLibrary\ServiceIntegrationLibrary.csproj", "{E440D416-0C30-47B6-B61E-7EB3322F61FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceIntegrationLibrary", "ServiceIntegrationLibrary\ServiceIntegrationLibrary.csproj", "{E440D416-0C30-47B6-B61E-7EB3322F61FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

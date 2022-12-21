@@ -1,7 +1,5 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Options;
 using ServiceIntegrationLibrary.Models;
-using TransactionsApi.Config;
 using TransactionsApi.Services;
 
 namespace TransactionsApi.Consumers
