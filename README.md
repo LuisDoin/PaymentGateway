@@ -24,6 +24,64 @@ The main responsibility of this service is managing our PaymentDB. It saves and 
 ### CKO Bank Simulator
 
 This service is fairly simple. He receives payments to be processed, saves their Id to a Redis database (so all service instances can observe the same already-processed payments), and process them. We did not implement the processing logic since it was out of this project's scope. Another interesting point not properly implemented here (again due to our scope) was making this service idempotent. He sure appears to be idempotent since we insert every processed id to Redis and enquires about it before processing any payment. But we have to think about the scenario where it processes the payment and, for example, the server crashes before saving it to Redis. If this payment ever arrives again (and it will since we employ retrying mechanisms), the bank will process it again. A more involved design is needed to fix this, such as using a state machine. Finally, it may be important to know that the bank simulates the available limit of a client by generating a random number from 50 to 100. So if we want, for testing purposes, for example, to make a request to generate a successful payment, we simply set any amount no greater than 50. Likewise, any amount greater than 100 will generate an unsuccessful transaction (given all other inputs are valid, of course). 
+
+## API Documentation
+
+
+```http
+  POST /Authentication/login
+```
+
+| Parameter   | Type       | Description                           |
+| :---------- | :--------- | :---------------------------------- |
+| `login` | `string` | **Required** |
+| `password` | `string` | **Required** |
+
+#### Returns a JSON Web Token. There are two users registered: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secrets '1' provides a Tier1 role with full access, while Secrets '2' provides a Tier2 role with access only to the Get endpoints.
+
+```http
+  POST /Payments/payment
+```
+
+| Parameter   | Type       | Description                           |
+| :---------- | :--------- | :---------------------------------- |
+| `paymentDetails` | `PaymentDetails` | **Required** |
+| `delayInSeconds` | `int` | **Optional** It's value is 0 by default. Used for testing. Further information can be found on the `Testing` section.|
+
+
+| PaymentDetails's fields   | Type       | Description                           |
+| :---------- | :--------- | :---------------------------------- |
+| `CreditCardNumber` | `string` | **Required** Must be a vaild credit card number as explained [here](https://smallbusiness.chron.com/validate-credit-card-information-43910.html). |
+| `ExpirationDate` | `string` | **Required** Must be in the format mm/yyyy.|
+| `Cvv` | `string` | **Required** Must contain 3 or 4 digits.|
+| `Currency` | `string` | **Required** List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD.|
+| `Amount` | `decimal` | **Required** Must be greater or equal to zero.|
+
+`Valid credit card number for testing: 4324781866717289. Other valid number can be generated [here](https://www.vccgenerator.org/).`
+
+#### Returns the posted payment's Id. 
+
+```http
+  GET /Payments/payment
+```
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `id`      | `string` | **Required**. The id of the requested payment. |
+
+#### Returns the requested payment if it exists. 
+
+```http
+  GET /Payments/payments
+```
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `from`      | `DateTime` | **Required**|
+| `to`      | `DateTime` | **Required**|
+
+#### Returns all payment issued by the current user with last status update between from and to DateTimes. 
+
 ## Running locally
 
 Clone the project
