@@ -77,14 +77,14 @@ namespace PaymentGateway.Controllers
                 paymentDetails.MerchantId = GetCurrentUserId();
                 paymentDetails.CreditCardNumber = Regex.Replace(paymentDetails.CreditCardNumber, "[- ]", String.Empty); //Remove spaces and hyphens
 
+                _logger.LogInformation($"Processing payment {paymentDetails}");
+
+                _paymentValidationService.ValidatePayment(paymentDetails);
+
                 var paymentJson = JsonSerializer.Serialize(paymentDetails);
                 await _httpClientProvider.PostAsync(_transactionsApiSettings.PostPaymentUri, paymentJson);
 
                 Thread.Sleep(1000*delayInSeconds);
-
-                _logger.LogInformation($"Processing payment {paymentDetails}");
-
-                _paymentValidationService.ValidatePayment(paymentDetails);
 
                 var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{_rabbitMQSettings.PendingTransactionsQueue}"));
                 await sendEndpoint.Send(paymentDetails);
