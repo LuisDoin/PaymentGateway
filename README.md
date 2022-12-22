@@ -176,6 +176,16 @@ And we can accttually use this paymentId to test our GET payment endpoint.
 It would also make sense to test unsuccessful payments and perform further testing on the GET payments method, passing different values to the 'from' and 'to' parameters. 
 
 As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status or alternatevely we could use a webhook so we can send a response to the client as soon as we are done processing the payment. 
+
+## Future Improvements
+
+* Our Payment Gateway service is currently using mocked-in-memory data for user authentication. We plan to add a Retailer Profile Service for managing a RetailerDB to store retailers' registration data. 
+* Add encryption to our transactionsDB.
+* Improve code coverage of our unit tests.
+* Add integration tests.
+* Add functional tests.
+* Add pagination to GET payments.
+
 ```
 
 
