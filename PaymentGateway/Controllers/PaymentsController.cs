@@ -119,7 +119,7 @@ namespace PaymentGateway.Controllers
                     { "paymentId", paymentId },
                 };
 
-                using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentsUri, parameters)).ToString());
+                using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentUri, parameters)).ToString());
                 
                 var payment = await httpResponseMessage.Content.ReadAsAsync<PaymentDetails>();
                 return payment != null ? Ok(payment) : NotFound();

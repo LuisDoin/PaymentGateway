@@ -18,14 +18,12 @@ namespace PaymentGateway.Services
             _userRepository = usersRepository;
         }
 
-        public async Task<string> GenerateToken(User candidateUser)
+        public async Task<string> GenerateToken(string login, string password)
         {
-            var user = _userRepository.Get(candidateUser.Login, candidateUser.Password);
+            var user = _userRepository.Get(login, password);
 
             if (user == null)
                 throw new InvalidOperationException("Invalid user or password.");
-
-            candidateUser.Role = user.Role;
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? "secretUsedForTesting");

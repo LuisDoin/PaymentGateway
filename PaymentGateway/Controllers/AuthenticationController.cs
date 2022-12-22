@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaymentGateway.Models;
 using PaymentGateway.Services;
 
 namespace PaymentGateway.Controllers
@@ -23,20 +22,19 @@ namespace PaymentGateway.Controllers
         /// <returns> </returns>
         /// <remarks>
         /// 
-        /// Register users: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secret1 provides a Tier1 role with full access and Secret2 provides a Tier2 role with access only to the Get endpoint.  
+        /// Register users: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secret1 provides a Tier1 role with full access and Secret2 provides a Tier2 role with access only to the Get endpoints.  
         /// 
         /// </remarks>
         /// <response code="200"></response>
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<dynamic>> Authenticate([FromBody] User user)
+        public async Task<ActionResult<dynamic>> Authenticate(string login, string password)
         {
             try
             {
-                var token = await _tokenServices.GenerateToken(user);
-                user.Password = "";
+                var token = await _tokenServices.GenerateToken(login, password);
 
-                return Ok(new { user, token });
+                return Ok(token);
             }
             catch (InvalidOperationException ex)
             {

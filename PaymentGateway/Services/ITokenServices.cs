@@ -4,6 +4,6 @@ namespace PaymentGateway.Services
 {
     public interface ITokenService
     {
-        public Task<string> GenerateToken(User user);
+        public Task<string> GenerateToken(string login, string password);
     }
 }
