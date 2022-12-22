@@ -24,8 +24,6 @@ namespace PaymentGateway.Services
 
             if (user == null)
                 throw new InvalidOperationException("Invalid user or password.");
-            
-            CurrentUser.UserId = user.UserId;
 
             candidateUser.Role = user.Role;
 

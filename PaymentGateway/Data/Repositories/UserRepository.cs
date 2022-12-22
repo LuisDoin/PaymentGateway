@@ -19,5 +19,10 @@ namespace PaymentGateway.Data.Repositories
         {
             return _users.FirstOrDefault<User>(u => u.Login == login && u.Password == password );
         }
+
+        public User Get(string login)
+        {
+            return _users.FirstOrDefault<User>(u => u.Login == login);
+        }
     }
 }

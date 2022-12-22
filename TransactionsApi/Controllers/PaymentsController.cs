@@ -71,7 +71,7 @@ namespace TransactionsApi.Controllers
         /// </remarks>
         /// <response code="200"></response>
         [HttpPost("payment")]
-        public async Task<IActionResult> Payments([FromBody] PaymentDetails paymentDetails)
+        public async Task<IActionResult> Payment([FromBody] PaymentDetails paymentDetails)
         {
             try
             {

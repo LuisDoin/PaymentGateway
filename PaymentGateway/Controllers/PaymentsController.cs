@@ -20,6 +20,13 @@ using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute
 using PaymentGateway.Services;
 using System.Security.Policy;
 using System.Text.Json;
+using Microsoft.AspNetCore.WebUtilities;
+using System;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Linq;
+using PaymentGateway.Data.Repositories;
 
 namespace PaymentGateway.Controllers
 {
@@ -28,6 +35,7 @@ namespace PaymentGateway.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentValidationService _paymentValidationService;
+        private readonly IUserRepository _userRepository;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly ILogger<PaymentsController> _logger;
         private readonly IHttpClientProvider _httpClientProvider;
@@ -35,6 +43,7 @@ namespace PaymentGateway.Controllers
         private readonly TransactionsApiSettings _transactionsApiSettings;
 
         public PaymentsController(IPaymentValidationService paymentValidationService,
+            IUserRepository userRepository,
             ISendEndpointProvider sendEndpointProvider,
             ILogger<PaymentsController> logger,
             IOptions<RabbitMQSettings> rabbitMQOptions,
@@ -42,6 +51,7 @@ namespace PaymentGateway.Controllers
             IHttpClientProvider httpClientProvider)
         {
             _paymentValidationService = paymentValidationService;
+            _userRepository = userRepository;
             _sendEndpointProvider = sendEndpointProvider;
             _logger = logger;
             _rabbitMQSettings = rabbitMQOptions.Value;
@@ -64,7 +74,7 @@ namespace PaymentGateway.Controllers
             {
                 paymentDetails.PaymentId = Guid.NewGuid();
                 paymentDetails.Status = PaymentStatus.Processing;
-                paymentDetails.MerchantId = CurrentUser.UserId;
+                paymentDetails.MerchantId = GetCurrentUserId();
                 paymentDetails.CreditCardNumber = Regex.Replace(paymentDetails.CreditCardNumber, "[- ]", String.Empty); //Remove spaces and hyphens
 
                 var paymentJson = JsonSerializer.Serialize(paymentDetails);
@@ -109,9 +119,7 @@ namespace PaymentGateway.Controllers
                     { "paymentId", paymentId },
                 };
 
-                string url = BuildUrlWithParameters(_transactionsApiSettings.GetPaymentUri, parameters);
-
-                using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
+                using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentsUri, parameters)).ToString());
                 
                 var payment = await httpResponseMessage.Content.ReadAsAsync<PaymentDetails>();
                 return payment != null ? Ok(payment) : NotFound();
@@ -125,42 +133,46 @@ namespace PaymentGateway.Controllers
 
         [HttpGet("payments")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1,Tier2")]
-        public async Task<IActionResult> Payments(long merchantId, DateTime from, DateTime? to = null)
+        public async Task<IActionResult> Payments(DateTime from, DateTime? to = null)
         {
             try
             {
-                _logger.LogInformation($"Fetching payments from merchant {merchantId}");
+                var currentUserId = GetCurrentUserId(); 
+
+                _logger.LogInformation($"Fetching payments from merchant {currentUserId}");
 
                 var parameters = new Dictionary<string, string>
                 {
-                    { "merchantId", merchantId.ToString() }, 
-                    { "from", from.ToString() },
+                    { "merchantId", currentUserId.ToString() }, 
+                    { "from", from.ToString("yyyy'-'MM'-'dd") },
                 };
                 if (to != null)
-                    parameters.Add("to", to.ToString());
+                    parameters.Add("to", to.Value.ToString("yyyy'-'MM'-'dd"));
 
-                string url = BuildUrlWithParameters(_transactionsApiSettings.GetPaymentsUri, parameters);
-
-                using var httpResponseMessage = await _httpClientProvider.GetAsync(url);
+                using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentsUri, parameters)).ToString());
 
                 var payments = await httpResponseMessage.Content.ReadAsAsync<IEnumerable<PaymentDetails>>();
                 return payments != null ? Ok(payments) : NotFound();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error while fetching payments from merchant {merchantId}");
+                _logger.LogError(ex, $"Error while fetching payments.");
                 return StatusCode(500, ex.Message);
             }
         }
 
-        private string BuildUrlWithParameters(string uri, Dictionary<string, string> parameters)
+        private string GetCurrentUser()
         {
-            var builder = new UriBuilder(uri);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            foreach(var entry in parameters)
-                query[entry.Key] = entry.Value;
-            builder.Query = query.ToString();
-            return builder.ToString();
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+            return jsonToken.Claims.First(x => x.Type == "unique_name")?.Value;
+        }
+
+        private long GetCurrentUserId()
+        {
+            var currentUser = GetCurrentUser();
+            return _userRepository.Get(currentUser).UserId;
         }
     }
 }

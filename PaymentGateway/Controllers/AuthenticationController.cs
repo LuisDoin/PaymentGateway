@@ -23,7 +23,7 @@ namespace PaymentGateway.Controllers
         /// <returns> </returns>
         /// <remarks>
         /// 
-        /// Register users: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secret1 gives a Tier1 role with full access and Secret2 gives access to Tier2 role with access only to the Get endpoint.  
+        /// Register users: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secret1 provides a Tier1 role with full access and Secret2 provides a Tier2 role with access only to the Get endpoint.  
         /// 
         /// </remarks>
         /// <response code="200"></response>
