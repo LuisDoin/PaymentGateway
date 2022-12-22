@@ -57,7 +57,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 | `Currency` | `string` | **Required** List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD.|
 | `Amount` | `decimal` | **Required** Must be greater or equal to zero.|
 
-`Valid credit card number for testing: 4324781866717289. Other valid number can be generated [here](https://www.vccgenerator.org/).`
+`Valid credit card number for testing: 4324781866717289. Other valid number can be generated` [here](https://www.vccgenerator.org/).
 
 #### Returns the posted payment's Id. 
 
