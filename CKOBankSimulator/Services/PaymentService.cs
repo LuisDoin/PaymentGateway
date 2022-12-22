@@ -21,7 +21,7 @@ namespace CKOBankSimulator.Services
         private Decimal GetCardCreditLimit(string creditCardNumber)
         {
             //Simulates operation of getting card's available limit.
-            return new Random().Next(100);
+            return new Random().Next(50,100);
         }
 
         public void ProcessPayment(PaymentInfo payment)
