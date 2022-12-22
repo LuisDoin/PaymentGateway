@@ -1,32 +1,23 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using PaymentGateway.Config;
+using PaymentGateway.Data.Repositories;
 using PaymentProcessor.Config;
 using ServiceIntegrationLibrary.Models;
 using ServiceIntegrationLibrary.ModelValidationServices;
 using ServiceIntegrationLibrary.Utils;
 using ServiceIntegrationLibrary.Utils.Interfaces;
-using System.Net;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.Http;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
-using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
-using PaymentGateway.Services;
-using System.Security.Policy;
-using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
-using System;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Linq;
-using PaymentGateway.Data.Repositories;
 
 namespace PaymentGateway.Controllers
 {
@@ -68,7 +59,7 @@ namespace PaymentGateway.Controllers
         /// <response code="200"></response>
         [HttpPost("payment")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1")]
-        public async Task<IActionResult> Payment([Microsoft.AspNetCore.Mvc.FromBody] PaymentDetails paymentDetails, int delayInSeconds = 0)
+        public async Task<IActionResult> Payment([FromBody] PaymentDetails paymentDetails, int delayInSeconds = 0)
         {
             try
             {
@@ -163,7 +154,9 @@ namespace PaymentGateway.Controllers
 
         private string GetCurrentUser()
         {
-            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            //We declare the testing token here since we do not have access to HttpContext in our unit test class.
+            var tokenUsedOnUnitTesting = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFtYXpvbiIsInJvbGUiOiJUaWVyMSIsIm5iZiI6MTY3MTczNjA0NywiZXhwIjoxNjcxNzQzMjQ3LCJpYXQiOjE2NzE3MzYwNDd9.nlssiFDzZFv5TtvnFXQRc_iAbFTOZ8qymB_-sEech9Q".Replace("Bearer ", string.Empty);
+            var token = HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty) ?? tokenUsedOnUnitTesting;
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
             return jsonToken.Claims.First(x => x.Type == "unique_name")?.Value;
