@@ -157,7 +157,7 @@ The first endpoint that makes sense to test is the POST endpoint. Here we have a
 {
   "creditCardNumber": "4324781866717289",
   "expirationDate": "01/2020",
-  "cvv": 111"",
+  "cvv": "111",
   "currency": "USD",
   "amount": 10
 }
