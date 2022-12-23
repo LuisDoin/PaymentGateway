@@ -67,7 +67,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 
 | PaymentDetails's fields   | Type       | Description                           |
 | :---------- | :--------- | :---------------------------------- |
-| `CreditCardNumber` | `string` | **Required** Must be a vaild credit card number as explained [here](https://www.groundlabs.com/blog/anatomy-of-a-credit-card/). |
+| `CreditCardNumber` | `string` | **Required** Must be a vaild credit card number as explained [here](https://www.groundlabs.com/blog/anatomy-of-a-credit-card). |
 | `ExpirationDate` | `string` | **Required** Must be in the format mm/yyyy.|
 | `Cvv` | `string` | **Required** Must contain 3 or 4 digits.|
 | `Currency` | `string` | **Required** List of supported currencies: USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, SGD.|
@@ -152,7 +152,7 @@ Ok, with authentication out of the way, let's test our API. Our transactionsDB h
 ![image](/Blob/Testing_InitialData.png)
 
 
-The first endpoint that makes sense to test is the POST endpoint. Here we have added an optional parameter to aid us during testing. When we call this endpoint, the payment has the status 'Processing' (persisted on our PaymentsDb). Later this status is updated to either 'Successful' or 'Unsuccessful'. The issue is that this process happens so fast that we cannot catch it during testing. So we added the delayInSeconds parameters that will stop the process for the required amount of seconds right after the database insertion. In the meanwhile, we may call the GET payments endpoint (since we do not possess the paymentId yet) and see our payment on the top of the list with a 'Processing' status. When our POST endpoint finally returns, we can confirm that the returned paymentId and the paymentId returned by the GET payments return are the same. We may also call the GET payments endpoint again to check the newly updated status. Something to keep in mind is that the GET endpoint performs validations on every input and some of them are not intuitive, especially the ones made over the credit card number ([here](https://smallbusiness.chron.com/validate-credit-card-information-43910.html) we have a brief explanation on this). So here is an example of an object that passes all validations (we can generate more valid credit card numbers [here](https://www.vccgenerator.org/) if we want):
+The first endpoint that makes sense to test is the POST endpoint. Here we have added an optional parameter to aid us during testing. When we call this endpoint, the payment has the `Processing` status  (persisted on our PaymentsDb). Later this status is updated to either `Successful` or `Unsuccessful`. The issue is that this process happens so fast that we cannot catch it during testing. So we added the delayInSeconds parameter that will stop the process for the required amount of seconds right after the database insertion. In the meanwhile, we may call the GET payments endpoint (since we do not possess the paymentId yet) and see our payment on the top of the list with a `Processing` status. When our POST endpoint finally returns, we can confirm that the returned paymentId and the paymentId returned by the GET payments are the same. We may also call the GET payments endpoint again to check the newly updated status. Something to keep in mind is that the GET endpoint performs validations on every input and some of them are not intuitive, especially the ones made over the credit card number ([here](https://www.groundlabs.com/blog/anatomy-of-a-credit-card) we have a brief explanation on this). Here is an example of an object that passes all validations (we can generate more valid credit card numbers [here](https://www.vccgenerator.org/) if we want):
 
 {
   "creditCardNumber": "4324781866717289",
@@ -162,7 +162,7 @@ The first endpoint that makes sense to test is the POST endpoint. Here we have a
   "amount": 10
 }
 
-This will generate a successful transaction. If we want to simulate an unsuccessful transaction, we may change the amount to 1000. This is because the CKOBankSimulator simulates the operations of checking how much available limit a client has by randomly picking any number from 50 to 100. So if the amount is less than 50, the transaction will be successful, and any amount greater than 100 will generate an unsuccessful transaction. And, given valid inputs, this is the only criterion that will determine the final status of a transaction since the code has no bugs that I know of, and our system's retries will deal with any possible transient issue.
+This will generate a successful transaction. If we want to simulate an unsuccessful transaction, we may change the amount to 1000. This is because the CKOBankSimulator simulates the operations of checking how much available limit a client possesses by randomly picking any number from 50 to 100. So if the amount is less than 50, the transaction will be successful, and any amount greater than 100 will generate an unsuccessful transaction. And, given valid inputs, this is the only criterion that will determine the final status of a transaction since the code has no bugs that I know of, and our system's retries will deal with any possible transient issue.
 Alright, below there are some pictures depicting the usage of the delayInSeconds parameter. 
 
 
@@ -171,7 +171,7 @@ Call POST method passing a 30 seconds delay.
 
 ![image](/Blob/Testing_PostCallSuccess.png)
 
-Calling the GET payments to check the status 'Processing'. Here we can also see the masked credit card number. 
+Calling the GET payments to check the `Processing` status. Here we can also see the masked credit card number. 
 
 
 ![image](/Blob/Testing_ProcessingSuccess.png)
@@ -195,15 +195,15 @@ And we can accttually use this paymentId to test our GET payment endpoint.
 ![image](/Blob/Testing_GetPaymentCall.png)
 
 
-We can follow the same procedure to test a rejected payment. As we explained earlier, our banking simulator rejects payments for any amount greater than 100, simulating the client do not have enough limit for this purchase. We will than posta payment with an amount of 1000.  
+We can follow the same procedure to test a rejected payment. As we explained earlier, our banking simulator rejects payments for any amount greater than 100, simulating the client do not have enough limit. We will than post a payment with an amount of 1000.  
 
 ![image](/Blob/Testing_PostCallUnsuccessful.png)
 
-And again we call the GET payments to check the 'Processing' status.
+And again we call the GET payments to check the `Processing` status.
 
 ![image](/Blob/Testing_ProcessingFail.png)
 
-We wait for the post mathod finish processing.
+We wait for the post method to finish processing.
 
 ![image](/Blob/Testing_PostCallUnsuccessResponse.png)
 
@@ -211,16 +211,15 @@ And check the updated status again.
 
 ![image](/Blob/Testing_PrecessingToUnsuccessful.png)
 
-We can also test our GET payments methods with different parameters. First, if we make a call passing the date 2022-12-19 
+Let's now test the GET payments methods with different parameters. First, if we make a call passing the date `2022-12-19` 
 
 ![image](/Blob/Testing_GetPaymentsFrom19Call.png)
 
-We get all payments with createdAt field greater than 2022-12-19T00:00:00, which are all the entries in our database.
-
+We get all payments with createdAt field greater than `2022-12-19T00:00:00`, which are all the entries in our database.
 
 ![image](/Blob/Testing_GetPaymentsFrom19Response.png)
 
-If, for example, we pass the parameters '2022-12-21T12:13:10' and '2022-12-22T15:12:08' 
+If, for example, we pass the parameters `2022-12-21T12:13:10` and `2022-12-22T15:12:08` 
 
 ![image](/Blob/Testing_GetPaymentsRangeCall.png)
 
@@ -236,7 +235,7 @@ We receive an informative response.
 
 ![image](/Blob/Testing_FromGreaterThanToResponse.png)
 
-As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status or alternatevely we could use a webhook so we can send a response to the client as soon as we are done processing the payment. 
+As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status, or we could use a webhook so we can send a response to the client as soon as we are done processing the payment.
 
 ## Future Improvements
 
