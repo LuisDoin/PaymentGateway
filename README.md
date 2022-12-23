@@ -104,31 +104,31 @@ Raise infrastructures
 
 Open the Solution using Visual Studio (2019 or 2022) and right-click on the Solution 'PaymentGateway'.
 
-![image](/Blob/image1.png)
+![image](/Blob/Run_Solution.png)
 
 Select Properties.
 
-![image](/Blob/image2.png)
+![image](/Blob/Run_Properties.png)
 
 Toggle the 'Multiple startup projects' option and select 'Start' for the projects CKOBankSimulator, PaymentGateway
 PaymentProcessor and TransactionsApi, as shown in the figure below.
 
-![image](/Blob/image3.png)
+![image](/Blob/Run_Start.png)
 
 Click on the Start button.
 
-![image](/Blob/image4.png)
+![image](/Blob/Run_Run.png)
 
 This will open Swagger for our Payment Gateway, which we will use to test our system. 
 
-![image](/Blob/image5.png)
+![image](/Blob/Run_Swagger.png)
 
 ## Testing
 
 The first step is to get a JWT on the Authentication endpoint. There are two users registered: Amazon and Nike. Their passwords are AWSSecret1, AWSSecret2, NikeSecret1 and NikeSecret2. Secrets '1' provides a Tier1 role with full access, while Secrets '2' provides a Tier2 role with access only to the Get endpoints.
 With our JWT, we can unlock all the endpoints using the Authorize button at the top right.
 
-![image](/Blob/image6.png)
+![image](/Blob/Testing_Auth.png)
 
 Ok, with authentication out of the way, let's test our API. The first endpoint that makes sense to test is the POST endpoint. Here we have added an optional parameter to aid us during testing. When we call this endpoint, the payment has the status 'Processing' (persisted on our PaymentsDb). Later this status is updated to either 'Successful' or 'Unsuccessful'. The issue is that this process happens so fast that we cannot catch it during testing. So we added the delayInSeconds parameters that will stop the process for the required amount of seconds right after the database insertion. In the meanwhile, we may call the GET payments endpoint (since we do not possess the paymentId yet) and see our payment on the top of the list with a 'Processing' status. When our POST endpoint finally returns, we can confirm that the returned paymentId and the paymentId returned by the GET payments return are the same. We may also call the GET payments endpoint again to check the newly updated status. Something to keep in mind is that the GET endpoint performs validations on every input and some of them are not intuitive, especially the ones made over the credit card number ([here](https://smallbusiness.chron.com/validate-credit-card-information-43910.html) we have a brief explanation on this). So here is an example of an object that passes all validations (we can generate more valid credit card numbers [here](https://www.vccgenerator.org/) if we want):
 
@@ -147,30 +147,30 @@ Alright, below there are some pictures depicting the usage of the delayInSeconds
 Call POST method passing a 30 seconds delay.
 
 
-![image](/Blob/image7.png)
+![image](/Blob/Testing_PostCallSuccess.png)
 
 Calling the GET payments to check the status 'Processing'. Here we can also see the masked credit card number. 
 
 
-![image](/Blob/image8.png)
+![image](/Blob/Testing_ProcessingSuccess.png)
 
 
 Check the return of the POST method to confirm we are observing the payment we have just posted.
 
 
-![image](/Blob/image9.png)
+![image](/Blob/Testing_PostCallSuccessResponse.png)
 
 
 Call again the Get payments to verify the newly updated status.
 
 
-![image](/Blob/image10.png)
+![image](/Blob/Testing_PrecessingToSuccessful.png)
 
 
 And we can accttually use this paymentId to test our GET payment endpoint.
 
 
-![image](/Blob/image11.png)
+![image](/Blob/Testing_GetPaymentCall.png)
 
 
 It would also make sense to test unsuccessful payments and perform further testing on the GET payments method, passing different values to the 'from' and 'to' parameters. 
