@@ -46,7 +46,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 | Parameter   | Type       | Description                           |
 | :---------- | :--------- | :---------------------------------- |
 | `paymentDetails` | `PaymentDetails` | **Required** |
-| `delayInSeconds` | `int` | **Optional** It's value is 0 by default. Used for testing. Further information can be found on the `Testing` section.|
+| `delayInSeconds` | `int` | **Optional** Default value: 0. Used for testing. Further information can be found on the `Testing` section.|
 
 
 | PaymentDetails's fields   | Type       | Description                           |
@@ -78,7 +78,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 | Parâmetro   | Tipo       | Descrição                                   |
 | :---------- | :--------- | :------------------------------------------ |
 | `from`      | `DateTime` | **Required**|
-| `to`      | `DateTime` | **Required**|
+| `to`      | `DateTime` | **Required** Default value: current date|
 
 #### Returns all payment issued by the current user with last status update between from and to DateTimes. 
 
