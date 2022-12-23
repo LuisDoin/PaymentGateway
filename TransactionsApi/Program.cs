@@ -1,4 +1,3 @@
-using FluentAssertions.Common;
 using FluentMigrator.Runner;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using System.Reflection;
 using TransactionsApi.Config;
 using TransactionsApi.Consumers;
 using TransactionsApi.Context;
-using TransactionsApi.Data;
 using TransactionsApi.Data.Repositories;
 using TransactionsApi.Extensions;
 using TransactionsApi.Migrations;

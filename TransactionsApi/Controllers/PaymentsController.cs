@@ -48,7 +48,7 @@ namespace TransactionsApi.Controllers
         /// </remarks>
         /// <response code="200"></response>
         [HttpGet("payments")]
-        public async Task<IActionResult> Payments(long merchantId, DateTime from, DateTime? to = null)
+        public async Task<IActionResult> Payments(long merchantId, DateTime from, DateTime to)
         {
             try
             {

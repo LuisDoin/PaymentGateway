@@ -27,8 +27,8 @@ namespace ServiceIntegrationLibrary.Models
         public string Cvv { get; set; }
         public string Currency { get; set; }
         public decimal Amount { get; set; }
+        public DateTime CreatedAt { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PaymentStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 }

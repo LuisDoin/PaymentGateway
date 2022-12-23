@@ -21,11 +21,8 @@ namespace TransactionsApi.Data.Repositories
             return await _dbConnection.QueryFirstOrDefaultAsync<PaymentDetails>(SqlQueries.GetTransaction, new { paymentId });
         }
 
-        public async Task<IEnumerable<PaymentDetails>> Get(long merchantId, DateTime from, DateTime? to = null)
+        public async Task<IEnumerable<PaymentDetails>> Get(long merchantId, DateTime from, DateTime to)
         {
-            if (to == null)
-                to = DateTime.UtcNow;
-
             return await _dbConnection.QueryAsync<PaymentDetails>(SqlQueries.GetTransactionsFromMerchant, new { merchantId, from, to });
         }
 

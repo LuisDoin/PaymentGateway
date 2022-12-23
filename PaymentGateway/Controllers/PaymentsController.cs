@@ -100,10 +100,13 @@ namespace PaymentGateway.Controllers
         {
             try
             {
-                if(!Guid.TryParse(paymentId, out _))
-                    return BadRequest("PaymentId must be a GUID.");
-
                 _logger.LogInformation($"Fetching payment {paymentId}");
+
+                if (!Guid.TryParse(paymentId, out _))
+                {
+                    _logger.LogInformation($"Invalid paymentId {paymentId}. PaymentId must be a GUID");
+                    return BadRequest("PaymentId must be a GUID.");
+                }                
 
                 var parameters = new Dictionary<string, string>
                 {
@@ -132,13 +135,21 @@ namespace PaymentGateway.Controllers
 
                 _logger.LogInformation($"Fetching payments from merchant {currentUserId}");
 
+                if (to == null)
+                    to = DateTime.UtcNow;
+
+                if(DateTime.Compare(from, to.Value) > 0)
+                {
+                    _logger.LogInformation($"Invalid dates {from} and {to}. 'from' parameter must be prior to 'to' parameter");
+                    return BadRequest($"Invalid dates {from} and {to}. 'from' parameter must be prior to 'to' parameter");
+                }
+
                 var parameters = new Dictionary<string, string>
                 {
                     { "merchantId", currentUserId.ToString() }, 
-                    { "from", from.ToString("yyyy'-'MM'-'dd") },
+                    { "from", from.ToString("O") },
+                    { "to", to.Value.ToString("O") },
                 };
-                if (to != null)
-                    parameters.Add("to", to.Value.ToString("yyyy'-'MM'-'dd"));
 
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentsUri, parameters)).ToString());
 
@@ -155,8 +166,8 @@ namespace PaymentGateway.Controllers
         private string GetCurrentUser()
         {
             //We declare the testing token here since we do not have access to HttpContext in our unit test class.
-            var tokenUsedOnUnitTesting = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFtYXpvbiIsInJvbGUiOiJUaWVyMSIsIm5iZiI6MTY3MTczNjA0NywiZXhwIjoxNjcxNzQzMjQ3LCJpYXQiOjE2NzE3MzYwNDd9.nlssiFDzZFv5TtvnFXQRc_iAbFTOZ8qymB_-sEech9Q".Replace("Bearer ", string.Empty);
-            var token = HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty) ?? tokenUsedOnUnitTesting;
+            var tokenUsedforUnitTesting = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFtYXpvbiIsInJvbGUiOiJUaWVyMSIsIm5iZiI6MTY3MTczNjA0NywiZXhwIjoxNjcxNzQzMjQ3LCJpYXQiOjE2NzE3MzYwNDd9.nlssiFDzZFv5TtvnFXQRc_iAbFTOZ8qymB_-sEech9Q".Replace("Bearer ", string.Empty);
+            var token = HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty) ?? tokenUsedforUnitTesting;
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
             return jsonToken.Claims.First(x => x.Type == "unique_name")?.Value;
