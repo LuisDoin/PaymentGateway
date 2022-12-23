@@ -237,6 +237,9 @@ We receive an informative response.
 
 As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status, or we could use a webhook so we can send a response to the client as soon as we are done processing the payment.
 
+## Technologies Used
+C#, RabbitMQ, MassTransit, SQL Server, Redis
+
 ## Future Improvements
 
 * Our Payment Gateway service is currently using mocked-in-memory data for user authentication. We plan to add a Retailer Profile Service for managing a RetailerDB to store retailers' registration data. 
