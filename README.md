@@ -130,7 +130,13 @@ With our JWT, we can unlock all the endpoints using the Authorize button at the 
 
 ![image](/Blob/Testing_Auth.png)
 
-Ok, with authentication out of the way, let's test our API. The first endpoint that makes sense to test is the POST endpoint. Here we have added an optional parameter to aid us during testing. When we call this endpoint, the payment has the status 'Processing' (persisted on our PaymentsDb). Later this status is updated to either 'Successful' or 'Unsuccessful'. The issue is that this process happens so fast that we cannot catch it during testing. So we added the delayInSeconds parameters that will stop the process for the required amount of seconds right after the database insertion. In the meanwhile, we may call the GET payments endpoint (since we do not possess the paymentId yet) and see our payment on the top of the list with a 'Processing' status. When our POST endpoint finally returns, we can confirm that the returned paymentId and the paymentId returned by the GET payments return are the same. We may also call the GET payments endpoint again to check the newly updated status. Something to keep in mind is that the GET endpoint performs validations on every input and some of them are not intuitive, especially the ones made over the credit card number ([here](https://smallbusiness.chron.com/validate-credit-card-information-43910.html) we have a brief explanation on this). So here is an example of an object that passes all validations (we can generate more valid credit card numbers [here](https://www.vccgenerator.org/) if we want):
+Ok, with authentication out of the way, let's test our API. Our transactionsDB has been populated with the follwing data for testing:
+
+
+![image](/Blob/Testing_InitialData.png)
+
+
+The first endpoint that makes sense to test is the POST endpoint. Here we have added an optional parameter to aid us during testing. When we call this endpoint, the payment has the status 'Processing' (persisted on our PaymentsDb). Later this status is updated to either 'Successful' or 'Unsuccessful'. The issue is that this process happens so fast that we cannot catch it during testing. So we added the delayInSeconds parameters that will stop the process for the required amount of seconds right after the database insertion. In the meanwhile, we may call the GET payments endpoint (since we do not possess the paymentId yet) and see our payment on the top of the list with a 'Processing' status. When our POST endpoint finally returns, we can confirm that the returned paymentId and the paymentId returned by the GET payments return are the same. We may also call the GET payments endpoint again to check the newly updated status. Something to keep in mind is that the GET endpoint performs validations on every input and some of them are not intuitive, especially the ones made over the credit card number ([here](https://smallbusiness.chron.com/validate-credit-card-information-43910.html) we have a brief explanation on this). So here is an example of an object that passes all validations (we can generate more valid credit card numbers [here](https://www.vccgenerator.org/) if we want):
 
 {
   "creditCardNumber": "4324781866717289",
@@ -161,7 +167,7 @@ Check the return of the POST method to confirm we are observing the payment we h
 ![image](/Blob/Testing_PostCallSuccessResponse.png)
 
 
-Call again the Get payments to verify the newly updated status.
+Call again the GET payments to verify the newly updated status.
 
 
 ![image](/Blob/Testing_PrecessingToSuccessful.png)
@@ -173,7 +179,38 @@ And we can accttually use this paymentId to test our GET payment endpoint.
 ![image](/Blob/Testing_GetPaymentCall.png)
 
 
-It would also make sense to test unsuccessful payments and perform further testing on the GET payments method, passing different values to the 'from' and 'to' parameters. 
+We can follow the same procedure to test a rejected payment. As we explained earlier, our banking simulator rejects payments for any amount greater than 100, simulating the client do not have enough limit for this purchase. We will than posta payment with an amount of 1000.  
+
+![image](/Blob/Testing_PostCallUnsuccessful.png)
+
+And again we call the GET payments to check the 'Processing' status.
+
+![image](/Blob/Testing_ProcessingFail.png)
+
+We wait for the post mathod finish processing.
+
+![image](/Blob/Testing_PostCallUnsuccessResponse.png)
+
+And check the updated status again.
+
+![image](/Blob/Testing_PrecessingToUnsuccessful.png)
+
+We can also test our GET payments methods with different parameters. First, if we make a call passing the date 2022-12-19 
+
+![image](/Blob/Testing_GetPaymentsFrom19Call.png)
+
+We receive all payments with createdAt field greater than 2022-12-19T00:00:00, which are all the entries in our database.
+
+
+![image](/Blob/Testing_GetPaymentsFrom19Response.png)
+
+If, for example, we pass the parameters '2022-12-21T12:13:10' and '2022-12-22T15:12:08' 
+
+![image](/Blob/Testing_GetPaymentsRangeCall.png)
+
+we receive all payments whith createdAt field in this range. 
+
+![image](/Blob/Testing_GetPaymentsRangeResponse.png)
 
 As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status or alternatevely we could use a webhook so we can send a response to the client as soon as we are done processing the payment. 
 
