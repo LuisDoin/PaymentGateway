@@ -78,7 +78,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 | Parâmetro   | Tipo       | Descrição                                   |
 | :---------- | :--------- | :------------------------------------------ |
 | `from`      | `DateTime` | **Required**|
-| `to`      | `DateTime` | **Required** Default value: current date|
+| `to`      | `DateTime` | **Optional** Default value: current date|
 
 #### Returns all payment issued by the current user with last status update between from and to DateTimes. 
 
