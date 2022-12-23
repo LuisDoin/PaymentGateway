@@ -8,15 +8,15 @@ In this project, we implemented a system to provide online payment processing fo
 
 Let's discuss how the credit card payment system works and where we fit into the picture. When a person performs a purchase using a credit card, the retailer must somehow communicate with the bank that emitted the card to forward the task of validating and processing this payment. The task is not forwarded directly to the bank, though. The payment goes through a payment network first, such as Visa or Mastercard and than gets forwarded to the subject bank. We can see the payment networks as an abstraction layer over banks. With this decoupling between retailers and banks, the retailer does not need to know how to interact with each and every bank. He just needs to know how to interact with the payment networks he works with. That is great, but it turns out that this task still offers great challenges and a workload that goes completely out of the retailer's scope. That is where we enter! We offer integration between retailers and payment networks; thus, the retailer only needs to know how to communicate with us, and we are responsible for ensuring each payment is processed exactly once. As a side note, another cool trait of having this payment network abstraction layer, from the customer's point of view now, is that we are not bounded to a geographical place or currency. We can be in Shanghai and use a credit card emitted in the US, and the payment network will take care of making the bridge between one side and the other. Alright, enough talk; let's get to the meat of the matter.
 
-### Challenges of building a Payment Gateway 
+### Challenges of Building a Payment Gateway 
 
 We must mention here PCI and other regulatory compliances and maintaining integrations in a dynamic industry. However, we want to focus on the architectural aspects of this challenge; we are not dealing with one client and one server processing a request. We must picture thousands or even millions of requests being dealt with daily. On such a high-scale distributed system, it is the same story we all know: servers will crash, networks will collapse, children will cry. Our system must not fear, be reliable and consistent. The first decision regarding our system's design is easy: 
  
-#### Microservices or Monilith Aplication?
+#### Microservices Or Monilith Aplication?
 
 Well, in such a complex and dynamic scenario with many responsibilities, we most certainly do not want to be working on a monolith. It would turn into a gigantic code base nearly impossible to maintain and improve. With microservices, we can scale each part of our system independently. When adding or modifying a functionality, we can do so independently of other services. And the list goes on. Of course, microservices have their own challenges to offer. It is harder to debug operations across multiple microservices. It is harder to keep track of transactions. And it brings a lot of communication between each service, and each one of them can experience hiccups. Therefore concepts like idempotence and retrying mechanisms are that much more important. The question now is:
 
-#### To queue or not to queue? 
+#### To Queue Or Not To Queue? 
 
 Suppose we build our system using RESTful APIs to connect our microservices. In that case, all the retrying logic will be on our servers' shoulders (adding complexity and not really attending to the SRP), we will be more prone to network partitions on the communication between all our microservices and less reliable on surges and peak scenarios. Queues, on the other hand, abstract the retrying logic for us, give us a cushion for peak scenarios and decouple our services (among other things, such as the possibility of using topics to process stages of our pipeline in parallel, for example). Synchronous communication could be more suitable on a simpler system or one in which providing synchronous responses were mandatory. Below is a sketch of how we designed the system using queue-based communication microservices: 
 
@@ -98,7 +98,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 
 #### Returns all payment issued by the authenticated user with last status update between from and to DateTimes. 
 
-## Running locally
+## Running Locally
 
 Clone the project
 
