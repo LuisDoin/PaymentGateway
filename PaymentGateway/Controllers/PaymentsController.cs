@@ -140,8 +140,8 @@ namespace PaymentGateway.Controllers
 
                 if(DateTime.Compare(from, to.Value) > 0)
                 {
-                    _logger.LogInformation($"Invalid dates {from} and {to}. 'from' parameter must be prior to 'to' parameter");
-                    return BadRequest($"Invalid dates {from} and {to}. 'from' parameter must be prior to 'to' parameter");
+                    _logger.LogInformation("Invalid dates. 'from' parameter must be prior to 'to' parameter");
+                    return BadRequest("Invalid dates. 'from' parameter must be prior to 'to' parameter");
                 }
 
                 var parameters = new Dictionary<string, string>
