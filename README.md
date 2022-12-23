@@ -199,7 +199,7 @@ We can also test our GET payments methods with different parameters. First, if w
 
 ![image](/Blob/Testing_GetPaymentsFrom19Call.png)
 
-We receive all payments with createdAt field greater than 2022-12-19T00:00:00, which are all the entries in our database.
+We get all payments with createdAt field greater than 2022-12-19T00:00:00, which are all the entries in our database.
 
 
 ![image](/Blob/Testing_GetPaymentsFrom19Response.png)
@@ -208,9 +208,17 @@ If, for example, we pass the parameters '2022-12-21T12:13:10' and '2022-12-22T15
 
 ![image](/Blob/Testing_GetPaymentsRangeCall.png)
 
-we receive all payments whith createdAt field in this range. 
+We get all payments whith createdAt field in this range. 
 
 ![image](/Blob/Testing_GetPaymentsRangeResponse.png)
+
+And if we pass a to date prior to the from date.
+
+![image](/Blob/Testing_FromGreaterThanToCall.png)
+
+We receive an informative response.
+
+![image](/Blob/Testing_FromGreaterThanToResponse.png)
 
 As a final remark for this section, for our client to receive the final status of a payment we could apply two strategies: the client can perform a pooling to check payment status or alternatevely we could use a webhook so we can send a response to the client as soon as we are done processing the payment. 
 
