@@ -48,8 +48,13 @@ namespace TransactionsApi.Data.Repositories
             var lastDigits = creditCardNumber.Substring(creditCardNumber.Length - 4, 4);
             var requiredMask = new String('X', creditCardNumber.Length - lastDigits.Length);
             var maskedString = string.Concat(requiredMask, lastDigits);
-            var maskedCardNumberWithSpaces = Regex.Replace(maskedString, ".{4}", "$0 ");
-            return maskedCardNumberWithSpaces;
+
+            //Gives better-looking formatting (XXXX XXXX XXXX 1111) for the most common card patterns. 
+            //We will expand this functionality to all card patterns in the future.
+            if (creditCardNumber.Length % 4 == 0)
+                maskedString = Regex.Replace(maskedString, ".{4}", "$0 ").Trim();
+
+            return maskedString;
         }
 
         private string MaskCvv(string cvv)
