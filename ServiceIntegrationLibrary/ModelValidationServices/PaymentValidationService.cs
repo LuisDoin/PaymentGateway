@@ -77,7 +77,12 @@ namespace ServiceIntegrationLibrary.ModelValidationServices
             var month = dateParts[0];
             var year = dateParts[1];
 
-            return Regex.IsMatch(month, @"^(0[1-9]|1[0-2])$") && Regex.IsMatch(year, @"^20[2-9][0-9]$");
+            return Regex.IsMatch(month, @"^(0[1-9]|1[0-2])$") && Regex.IsMatch(year, @"^20[0-9][0-9]$") && !cardIsExpired(int.Parse(month), int.Parse(year));
+        }
+
+        private bool cardIsExpired(int expirationMonth, int expirationYear)
+        {
+            return expirationYear < DateTime.Now.Year || (expirationYear == DateTime.Now.Year && expirationMonth < DateTime.Now.Month);
         }
     }
 }
