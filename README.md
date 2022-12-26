@@ -83,7 +83,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 
 | Parâmetro   | Tipo       | Descrição                                   |
 | :---------- | :--------- | :------------------------------------------ |
-| `id`      | `string` | **Required**. The id of the requested payment. |
+| `id`      | `string` | **Required** id of the requested payment. |
 
 #### Returns the requested payment if it exists. 
 
