@@ -93,7 +93,7 @@ This service is fairly simple. He receives payments to be processed, saves their
 
 | Parâmetro   | Tipo       | Descrição                                   |
 | :---------- | :--------- | :------------------------------------------ |
-| `from`      | `DateTime` | **Required** Round-trip standard format| 
+| `from`      | `DateTime` | **Required** Default value: DateTime mininum value. Round-trip standard format| 
 | `to`      | `DateTime` | **Optional** Default value: current date. Round-trip standard format|
 
 #### Returns all payment issued by the authenticated user with last status update between from and to DateTimes. 
@@ -156,7 +156,7 @@ The first endpoint that makes sense to test is the POST endpoint. Here we have a
 
 {
   "creditCardNumber": "4324781866717289",
-  "expirationDate": "01/2020",
+  "expirationDate": "01/2027",
   "cvv": "111",
   "currency": "USD",
   "amount": 10
