@@ -127,7 +127,7 @@ namespace PaymentGateway.Controllers
 
         [HttpGet("payments")]
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Tier1,Tier2")]
-        public async Task<IActionResult> Payments(DateTime from, DateTime? to = null)
+        public async Task<IActionResult> Payments(DateTime? from = null, DateTime? to = null)
         {
             try
             {
@@ -135,10 +135,11 @@ namespace PaymentGateway.Controllers
 
                 _logger.LogInformation($"Fetching payments from merchant {currentUserId}");
 
-                if (to == null)
-                    to = DateTime.UtcNow;
+                if (from == null) from = new DateTime(1753, 1, 1, 12, 0, 0); //Minimum DateTime of SQL Server
 
-                if(DateTime.Compare(from, to.Value) > 0)
+                if (to == null) to = DateTime.UtcNow;
+
+                if(DateTime.Compare(from.Value, to.Value) > 0)
                 {
                     _logger.LogInformation("Invalid dates. 'from' parameter must be prior to 'to' parameter");
                     return BadRequest("Invalid dates. 'from' parameter must be prior to 'to' parameter");
@@ -147,7 +148,7 @@ namespace PaymentGateway.Controllers
                 var parameters = new Dictionary<string, string>
                 {
                     { "merchantId", currentUserId.ToString() }, 
-                    { "from", from.ToString("O") },
+                    { "from", from.Value.ToString("O") },
                     { "to", to.Value.ToString("O") },
                 };
 
