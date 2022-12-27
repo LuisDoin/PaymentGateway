@@ -131,7 +131,7 @@ namespace PaymentGateway.Controllers
         {
             try
             {
-                var currentUserId = GetCurrentUserId(); 
+                var currentUserId = GetCurrentUserId();
 
                 _logger.LogInformation($"Fetching payments from merchant {currentUserId}");
 
@@ -155,7 +155,7 @@ namespace PaymentGateway.Controllers
                 using var httpResponseMessage = await _httpClientProvider.GetAsync(new Uri(QueryHelpers.AddQueryString(_transactionsApiSettings.GetPaymentsUri, parameters)).ToString());
 
                 var payments = await httpResponseMessage.Content.ReadAsAsync<IEnumerable<PaymentDetails>>();
-                return payments != null ? Ok(payments) : NotFound();
+                return Ok(payments);
             }
             catch (Exception ex)
             {
