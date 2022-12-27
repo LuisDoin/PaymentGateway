@@ -37,6 +37,7 @@ namespace ServicesIntegrationLibrary.UnitTests.ValidationServices
         [TestCase("4324781866717289", 1, "01/20301", " 000", "USD", 1, "Invalid expiration date")] //Incorrect year
         [TestCase("4324781866717289", 1, "01*2030", "000", "USD", 1, "Invalid expiration date")] //Incorrect separator
         [TestCase("4324781866717289", 1, "012030", "000", "USD", 1, "Invalid expiration date")] //Incorrect separator
+        [TestCase("4324781866717289", 1, "01/2020", "000", "USD", 1, "Invalid expiration date")] //Expired date
         //Invalid cvv only  
         [TestCase("4324781866717289", 1, "01/2030", "", "USD", 1, "Invalid cvv")] //Empty cvv
         [TestCase("4324781866717289", 1, "01/2030", "0", "USD", 1, "Invalid cvv")] //Not enough digits
